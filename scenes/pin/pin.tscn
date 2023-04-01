@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://bf7mad2d768m1"]
+
+[ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
+[ext_resource type="Texture2D" uid="uid://cuv8vetjgvjv6" path="res://images/pin/base.png" id="2_xkso3"]
+[ext_resource type="Texture2D" uid="uid://xmh55qwqom3m" path="res://images/pin/pin_ring_mk1.png" id="2_y1lr7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_v5vt5"]
+
+[node name="Pin" type="Node2D"]
+z_index = 5
+script = ExtResource("1_e4dum")
+
+[node name="PinBody" type="Area2D" parent="."]
+
+[node name="SpriteRing" type="Sprite2D" parent="PinBody"]
+z_index = 1
+texture = ExtResource("2_y1lr7")
+
+[node name="SpriteBase" type="Sprite2D" parent="PinBody"]
+texture = ExtResource("2_xkso3")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PinBody"]
+shape = SubResource("CircleShape2D_v5vt5")
+
+[node name="NoteTextEdit" type="TextEdit" parent="."]
+visible = false
+offset_left = 50.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+wrap_mode = 1

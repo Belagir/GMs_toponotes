@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://8gd74gycl4pg"]
+
+[ext_resource type="Script" path="res://scenes/user_interface/ui.gd" id="1_tc2wf"]
+
+[node name="UI" type="HBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_tc2wf")
+
+[node name="ChangeImageButton" type="Button" parent="."]
+layout_mode = 2
+text = "Load"
+
+[node name="ChangeImageFileDialog" type="FileDialog" parent="ChangeImageButton"]
+title = "Open a File"
+position = Vector2i(100, 100)
+size = Vector2i(523, 400)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png", "*.jpg", "*.svg")
+
+[connection signal="pressed" from="ChangeImageButton" to="." method="_on_load_button_pressed"]
+[connection signal="file_selected" from="ChangeImageButton/ChangeImageFileDialog" to="." method="_on_load_file_dialog_file_selected"]
