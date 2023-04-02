@@ -1,9 +1,10 @@
+class_name Pin
 extends Node2D
 
 
 enum PIN_STATE {
 	IGNORED,
-	HOVERED,
+	HIGHLIGHTED,
 	SELECTED,
 }
 
@@ -15,7 +16,7 @@ func _ready() -> void:
 	($PinBody/CollisionShape2D.shape as CircleShape2D).radius = ($PinBody/SpriteBase.texture as Texture2D).get_size().x
 	$PinBody.mouse_entered.connect(_pin_hovered.bind(true))
 	$PinBody.mouse_exited.connect(_pin_hovered.bind(false))
-	GlobalEvents.pin_deselection.connect(to_state.bind(PIN_STATE.IGNORED))
+	GlobalEvents.pin_request_all_deselection.connect(to_state.bind(PIN_STATE.IGNORED))
 
 
 func state() -> PIN_STATE:
@@ -35,17 +36,18 @@ func to_state(new_state : PIN_STATE) -> void:
 	match _my_state:
 		PIN_STATE.IGNORED:
 			pass
-		PIN_STATE.HOVERED:
-			GlobalEvents.emit_signal("pin_hover", self, false)
+		PIN_STATE.HIGHLIGHTED:
+			pass
 		PIN_STATE.SELECTED:
 			$NoteTextEdit.hide()
+			GlobalEvents.pin_deselected.emit(self)
 	
 	# state enter
 	match new_state:
 		PIN_STATE.IGNORED:
 			pass
-		PIN_STATE.HOVERED:
-			GlobalEvents.emit_signal("pin_hover", self, true)
+		PIN_STATE.HIGHLIGHTED:
+			pass
 		PIN_STATE.SELECTED:
 			$NoteTextEdit.show()
 	
@@ -53,9 +55,5 @@ func to_state(new_state : PIN_STATE) -> void:
 
 
 func _pin_hovered(entered : bool) -> void:
-	if _my_state != PIN_STATE.SELECTED:
-		if entered:
-			self.to_state(PIN_STATE.HOVERED)
-		else:
-			self.to_state(PIN_STATE.IGNORED)
+	GlobalEvents.emit_signal("pin_hover", self, entered)
 

@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://b1tqo85m0ofcx" path="res://scenes/map/background.tscn" id="1_o0tkw"]
 [ext_resource type="PackedScene" uid="uid://b2avt74svovw5" path="res://scenes/usercamera/UserCamera.tscn" id="3_oxwk0"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node"]
 
 [node name="UICanvasLayer" type="CanvasLayer" parent="."]
 

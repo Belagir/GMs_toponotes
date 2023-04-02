@@ -1,6 +1,143 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2avt74svovw5"]
+[gd_scene load_steps=7 format=3 uid="uid://b2avt74svovw5"]
 
 [ext_resource type="Script" path="res://scenes/usercamera/UserCamera.gd" id="1_7isvh"]
+[ext_resource type="Script" path="res://source/StateMachine.gd" id="2_kgqjd"]
+
+[sub_resource type="GDScript" id="GDScript_5ucu5"]
+script/source = "extends State
+# inactive 
+
+
+func on_enter(_args : Dictionary) -> void:
+	GlobalEvents.pin_hover.connect(_on_pin_hover)
+
+
+func on_input(event : InputEvent) -> void:
+	if event.is_action_pressed(\"pin add\") or event.is_action_pressed(\"map drag\"):
+		_owner_state_machine.transition_to(\"Clicking\")
+
+
+func on_leave() -> void:
+	GlobalEvents.pin_hover.disconnect(_on_pin_hover)
+
+
+func _on_pin_hover(pin : Node, entered : bool) -> void:
+	if entered:
+		_owner_state_machine.transition_to(\"HoveringPin\", { \"hovered_pin\" = pin })
+"
+
+[sub_resource type="GDScript" id="GDScript_vilh0"]
+script/source = "extends State
+# hovering pin
+
+
+var _hovered_pin : Pin = null
+
+
+func on_enter(args : Dictionary) -> void:
+	GlobalEvents.pin_hover.connect(_on_pin_hover)
+	if args.has(\"hovered_pin\"):
+		_hovered_pin = args[\"hovered_pin\"]
+	if (_hovered_pin != null) and (_hovered_pin.state() != Pin.PIN_STATE.SELECTED):
+		_hovered_pin.to_state(Pin.PIN_STATE.HIGHLIGHTED)
+
+
+func on_input(event : InputEvent) -> void:
+	if (_hovered_pin != null) and event.is_action_released(\"pin select\"):
+		if (_hovered_pin.state() == Pin.PIN_STATE.SELECTED): _hovered_pin.to_state(Pin.PIN_STATE.IGNORED)
+		else: _hovered_pin.to_state(Pin.PIN_STATE.SELECTED)
+
+
+func on_leave() -> void:
+	GlobalEvents.pin_hover.disconnect(_on_pin_hover)
+
+
+func _on_pin_hover(_pin : Node, entered : bool) -> void:
+	if not entered:
+		_owner_state_machine.transition_to(\"Inactive\")
+"
+
+[sub_resource type="GDScript" id="GDScript_mdvsa"]
+script/source = "extends State
+# clicking state
+
+
+var _some_pin_was_deselected : bool
+
+
+func on_enter(_args : Dictionary) -> void:
+	GlobalEvents.pin_deselected.connect(_on_pin_deselected)
+
+
+func on_input(event : InputEvent) -> void:
+	if event.is_action_released(\"pin add\"):
+		_some_pin_was_deselected = false
+		GlobalEvents.pin_request_all_deselection.emit()
+		if not _some_pin_was_deselected:
+			GlobalEvents.new_default_pin.emit()
+		_owner_state_machine.transition_to(\"Inactive\")
+	elif event is InputEventMouseMotion:
+		owner.toggle_dragging_from(event)
+		_owner_state_machine.transition_to(\"Dragging\")
+
+
+func on_leave() -> void:
+	GlobalEvents.pin_deselected.disconnect(_on_pin_deselected)
+
+
+func _on_pin_deselected(_pin : Node2D) -> void:
+	_some_pin_was_deselected = true
+"
+
+[sub_resource type="GDScript" id="GDScript_0q0cq"]
+script/source = "extends State
+# dragging state
+
+
+var _dragging_hovering_pin : Pin
+
+
+func on_enter(_args : Dictionary) -> void:
+	GlobalEvents.pin_hover.connect(_set_hovering_pin_flag)
+	_dragging_hovering_pin = null
+
+
+func on_input(event : InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		owner.drag_camera(event as InputEventMouseMotion)
+	elif event.is_action_released(\"map drag\"):
+		if _dragging_hovering_pin == null:
+			_owner_state_machine.transition_to(\"Inactive\")
+		else:
+			_owner_state_machine.transition_to(\"HoveringPin\", { \"hovered_pin\" = _dragging_hovering_pin })
+
+
+func on_leave() -> void:
+	GlobalEvents.pin_hover.disconnect(_set_hovering_pin_flag)
+
+
+func _set_hovering_pin_flag(pin : Pin, entered : bool) -> void:
+	if entered:
+		_dragging_hovering_pin = pin
+	else:
+		_dragging_hovering_pin = null
+"
 
 [node name="UserCamera" type="Camera2D"]
 script = ExtResource("1_7isvh")
+
+[node name="StateMachineClickActions" type="Node" parent="."]
+script = ExtResource("2_kgqjd")
+initial_state = NodePath("Inactive")
+
+[node name="Inactive" type="Node" parent="StateMachineClickActions"]
+script = SubResource("GDScript_5ucu5")
+
+[node name="HoveringPin" type="Node" parent="StateMachineClickActions"]
+script = SubResource("GDScript_vilh0")
+
+[node name="Clicking" type="Node" parent="StateMachineClickActions"]
+script = SubResource("GDScript_mdvsa")
+
+[node name="Dragging" type="Node" parent="StateMachineClickActions"]
+script = SubResource("GDScript_0q0cq")

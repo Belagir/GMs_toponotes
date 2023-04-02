@@ -1,79 +1,66 @@
 extends Camera2D
 
-const Pin = preload("res://scenes/pin/pin.gd")
-
+# kind of zoom action
 enum ZOOM { IN, OUT }
 
 
-@export_range(0.01, 0.1, 0.01) var zoom_step : float = 0.04
+@export_group("zoom settings")
+# maximum zoom allowed
 @export_range(1, 4) var zoom_max : float = 3
+# minimum zoom allowed
 @export_range(0.1, 1) var zoom_min : float = 0.1
+# zoom multiplier each mouse wheel increment
+@export_range(1, 2, 0.05) var zoom_step : float = 1.2
+@export_group("")
 
-var _is_dragging : bool = false
-var _has_moved : bool = false
-var _dragging_start_pos : Vector2 = Vector2(0, 0)
+# camera start position in the event of dragging
 var _camera_start_pos : Vector2 = Vector2(0, 0)
+# mouse start position in the event of dragging
+var _dragging_start_pos : Vector2 = Vector2(0, 0)
 
+# map dimensions for bound checking
 var _map_dimensions : Vector2 = Vector2(0, 0)
-
-var _pin_hovered : Pin = null
-var _pin_selected : Pin = null
 
 
 func _ready() -> void:
+	# listen to map dimension updates to preserve bound check correctness
 	GlobalEvents.background_image_dimensions_changed.connect(_update_map_dimensions)
-	GlobalEvents.pin_hover.connect(_update_pin_hovered)
 
 
 func _unhandled_input(event : InputEvent) -> void:
-	var mouse_motion : InputEventMouseMotion = event as InputEventMouseMotion
-	var mouse_button : InputEventMouseButton = event as InputEventMouseButton
-	
-	if mouse_button != null:
-		_toggle_dragging_from(mouse_button)
-		if _pin_hovered != null:
-			if (mouse_button.is_action_released("pin add")):
-				_pin_hovered.to_state(Pin.PIN_STATE.SELECTED)
-		else:
-			GlobalEvents.pin_deselection.emit()
-			if event.is_action("pin add") and (not _is_dragging) and (not _has_moved):
-				GlobalEvents.new_default_pin.emit(self.get_global_mouse_position())
-			_has_moved = not mouse_button.is_pressed()
-	elif (mouse_motion != null) and _is_dragging:
-		_drag_camera(mouse_motion)
-	
+	# only the zooming is handled directly by the camera, other inputs are managed by the owned 
+	# state machine node
 	if event.is_action("map zoom"):
 		_change_zoom(ZOOM.IN)
 	elif event.is_action("map dezoom"):
 		_change_zoom(ZOOM.OUT)
 
+# drags the camera along a mouse movement
+func drag_camera(mouse_motion : InputEventMouseMotion) -> void:
+	self.position = ((_dragging_start_pos - mouse_motion.position) / self.zoom) + _camera_start_pos
+	_keep_camera_in_bounds()
 
-func _update_map_dimensions(new_dim : Vector2) -> void:
-	_map_dimensions = new_dim
-
-
-func _update_pin_hovered(pin : Node2D, entered : bool) -> void:
-	if entered:
-		_pin_hovered = pin as Pin
-	else:
-		_pin_hovered = null
-
-
-func _toggle_dragging_from(mouse_action : InputEventMouse) -> void:
-	_is_dragging = mouse_action.is_pressed()
+# starts dragging from a certain mouse position
+func toggle_dragging_from(mouse_action : InputEventMouse) -> void:
 	_dragging_start_pos = mouse_action.position
 	_camera_start_pos = self.position
 
+# changes zoom upward or downward
+func _change_zoom(kind : ZOOM) -> void:
+	var modifier : int = 1 if kind == ZOOM.IN else -1
+	
+	self.zoom *=  Vector2(zoom_step ** modifier, zoom_step ** modifier)
+	self.zoom = clamp(zoom, Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
+	
+	self.position = self.position + ((-modifier) * (self.position - get_global_mouse_position()) * (zoom_step-1))
+	_keep_camera_in_bounds()
 
-func _drag_camera(mouse_motion : InputEventMouseMotion) -> void:
-	_has_moved = true
-	self.position = ((_dragging_start_pos - mouse_motion.position) / self.zoom) + _camera_start_pos
+# clamps the camera's postion inside the known map dimensions
+func _keep_camera_in_bounds() -> void:
 	self.position.x = clamp(self.position.x, 0.0, _map_dimensions.x)
 	self.position.y = clamp(self.position.y, 0.0, _map_dimensions.y)
 
-
-func _change_zoom(kind : ZOOM) -> void:
-	var modifier : float = 1.0 if kind == ZOOM.IN else -1.0
-	self.zoom += modifier * Vector2(zoom_step, zoom_step)
-	self.zoom = clamp(zoom, Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
-
+# updates the known map dimensions 
+func _update_map_dimensions(new_dim : Vector2) -> void:
+	_map_dimensions = new_dim
+	_keep_camera_in_bounds()
