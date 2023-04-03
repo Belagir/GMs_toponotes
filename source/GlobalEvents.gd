@@ -1,7 +1,7 @@
 extends Node
 
 # a new pin is created at position "where"
-signal new_default_pin()
+signal new_default_pin(current_zoom : Vector2)
 
 # the background image changed dimensions : here are the new ones
 signal background_image_dimensions_changed(new_dim : Vector2)

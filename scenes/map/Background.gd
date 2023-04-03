@@ -14,12 +14,13 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	self.texture = new_texture
 
 
-func _add_default_pin() -> void:
+func _add_default_pin(current_zoom_level : Vector2) -> void:
 	var where := self.get_global_mouse_position()
 	if (where.x <= 0) or (where.x >= self.texture.get_size().x) or (where.y <= 0) or (where.y >= self.texture.get_size().y):
 		return
 	
 	var new_pin : Pin = PinScene.instantiate() as Pin
 	new_pin.position = where
+	new_pin.change_note_scale(current_zoom_level)
 	new_pin.to_size(Vector2(150, 150))
 	self.add_child(new_pin)

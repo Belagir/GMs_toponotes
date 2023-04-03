@@ -18,7 +18,12 @@ func _ready() -> void:
 	$PinBody.mouse_exited.connect(_pin_hovered.bind(false))
 	
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind(PIN_STATE.IGNORED))
-	GlobalEvents.zoom_level_changed.connect(_change_note_scale)
+	GlobalEvents.zoom_level_changed.connect(change_note_scale)
+
+
+func change_note_scale(new_zoom_level : Vector2) -> void:
+	$NoteTextEdit.scale.x = 1.0 / new_zoom_level.x
+	$NoteTextEdit.scale.y = 1.0 / new_zoom_level.y
 
 
 func state() -> PIN_STATE:
@@ -58,8 +63,3 @@ func to_state(new_state : PIN_STATE) -> void:
 
 func _pin_hovered(entered : bool) -> void:
 	GlobalEvents.emit_signal("pin_hover", self, entered)
-
-
-func _change_note_scale(new_zoom_level : Vector2) -> void:
-	$NoteTextEdit.scale.x = 1.0 / new_zoom_level.x
-	$NoteTextEdit.scale.y = 1.0 / new_zoom_level.y
