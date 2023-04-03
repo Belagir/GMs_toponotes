@@ -23,6 +23,7 @@ func transition_to(next_state_path : String, args : Dictionary = {}) -> void:
 	if not has_node(next_state_path):
 		return
 	
+	print("transition to ", next_state_path)
 	target_state = get_node(next_state_path) as State
 	
 	_state.on_leave()
