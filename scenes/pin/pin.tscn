@@ -10,6 +10,14 @@
 z_index = 5
 script = ExtResource("1_e4dum")
 
+[node name="NoteTextEdit" type="TextEdit" parent="."]
+visible = false
+offset_left = 50.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+wrap_mode = 1
+
 [node name="PinBody" type="Area2D" parent="."]
 
 [node name="SpriteRing" type="Sprite2D" parent="PinBody"]
@@ -21,11 +29,3 @@ texture = ExtResource("2_xkso3")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PinBody"]
 shape = SubResource("CircleShape2D_v5vt5")
-
-[node name="NoteTextEdit" type="TextEdit" parent="."]
-visible = false
-offset_left = 50.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = 100.0
-wrap_mode = 1

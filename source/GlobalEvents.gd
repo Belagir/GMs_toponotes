@@ -17,3 +17,6 @@ signal pin_request_all_deselection()
 
 # a pin is deselected and closing its associated note
 signal pin_deselected(pin : Node2D)
+
+# a new zoom level has been reached by the camera
+signal zoom_level_changed(new_level : Vector2)

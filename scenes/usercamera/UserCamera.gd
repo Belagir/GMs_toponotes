@@ -50,6 +50,7 @@ func _change_zoom(kind : ZOOM) -> void:
 	
 	self.zoom *=  Vector2(zoom_step ** modifier, zoom_step ** modifier)
 	self.zoom = clamp(zoom, Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
+	GlobalEvents.zoom_level_changed.emit(self.zoom)
 	
 	self.position = self.position + ((-modifier) * (self.position - get_global_mouse_position()) * (zoom_step-1))
 	self.position = keep_in_my_map(self.position)
