@@ -17,5 +17,5 @@ func on_leave() -> void:
 
 func _update_pin_hovered(pin : Pin, entered : bool) -> void:
 	_pin_hovered = pin if entered else null
-	if _pin_hovered and _pin_hovered.state() == Pin.PIN_STATE.IGNORED:
-		_pin_hovered.to_state(Pin.PIN_STATE.HIGHLIGHTED)
+	if _pin_hovered and _pin_hovered.state() == "Ignored":
+		_pin_hovered.to_state("Highlighted")

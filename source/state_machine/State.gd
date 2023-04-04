@@ -2,7 +2,11 @@ class_name State
 extends Node
 
 
-@onready var _owner_state_machine : StateMachine = _get_state_machine(self)
+var _owner_state_machine : StateMachine = null
+
+
+func _ready() -> void:
+	_owner_state_machine = _get_state_machine(self)
 
 
 func on_enter(_args : Dictionary) -> void:

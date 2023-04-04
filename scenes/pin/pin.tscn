@@ -1,24 +1,162 @@
-[gd_scene load_steps=5 format=3 uid="uid://bf7mad2d768m1"]
+[gd_scene load_steps=12 format=3 uid="uid://bf7mad2d768m1"]
 
 [ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
 [ext_resource type="Texture2D" uid="uid://cuv8vetjgvjv6" path="res://images/pin/base.png" id="2_xkso3"]
 [ext_resource type="Texture2D" uid="uid://xmh55qwqom3m" path="res://images/pin/pin_ring_mk1.png" id="2_y1lr7"]
+[ext_resource type="Texture2D" uid="uid://b36m802rwabyd" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
+[ext_resource type="Script" path="res://source/state_machine/StateMachine.gd" id="4_unch0"]
+
+[sub_resource type="GDScript" id="GDScript_1cw3p"]
+resource_name = "Ignored"
+script/source = "extends State
+# the pin is just here, chilling
+
+
+func on_enter(args : Dictionary) -> void:
+	super(args)
+	pass
+
+
+func on_input(_event : InputEvent) -> void:
+	pass
+
+
+func on_leave() -> void:
+	super()
+	pass
+"
+
+[sub_resource type="GDScript" id="GDScript_52vjc"]
+resource_name = "Highlighted"
+script/source = "extends State
+# the pin is highlighted
+
+
+func on_enter(args : Dictionary) -> void:
+	super(args)
+	pass
+
+
+func on_input(_event : InputEvent) -> void:
+	pass
+
+
+func on_leave() -> void:
+	super()
+	pass
+"
+
+[sub_resource type="GDScript" id="GDScript_t53as"]
+resource_name = "Selected"
+script/source = "extends State
+# the pin is selected
+
+
+func on_enter(args : Dictionary) -> void:
+	super(args)
+	owner.set_visibility_associated_note(true)
+
+
+func on_input(_event : InputEvent) -> void:
+	pass
+
+
+func on_leave() -> void:
+	super()
+	owner.set_visibility_associated_note(false)
+	GlobalEvents.pin_deselected.emit(owner)
+"
+
+[sub_resource type="GDScript" id="GDScript_aptoo"]
+resource_name = "Examined"
+script/source = "extends State
+# the pin's settings are examined
+
+
+func on_enter(args : Dictionary) -> void:
+	super(args)
+	owner.set_visibility_resize_handle(true)
+
+
+func on_input(_event : InputEvent) -> void:
+	pass
+
+
+func on_leave() -> void:
+	super()
+	owner.set_visibility_resize_handle(false)
+	GlobalEvents.pin_deselected.emit(owner)
+"
+
+[sub_resource type="GDScript" id="GDScript_wlfs2"]
+resource_name = "ResizeActivated"
+script/source = "extends State
+
+
+func on_enter(_args : Dictionary) -> void:
+	print(\"resizing...\")
+
+
+func on_input(event : InputEvent) -> void:
+	var mouse_motion : InputEventMouseMotion = event as InputEventMouseMotion
+	var wanted_size : Vector2
+	var longest_axis : int
+	
+	if event.is_action_released(\"click left\"):
+		_owner_state_machine.transition_to(\"Examined\")
+	elif mouse_motion:
+		wanted_size = owner.get_global_mouse_position() - owner.position
+		longest_axis = wanted_size.max_axis_index()
+		owner.to_size(Vector2(1, 1) * wanted_size[longest_axis] * 2)
+
+
+func on_leave() -> void:
+	print(\"finished resizing.\")	
+"
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_v5vt5"]
+radius = 128.0
 
 [node name="Pin" type="Node2D"]
 z_index = 5
 script = ExtResource("1_e4dum")
 
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("4_unch0")
+initial_state = NodePath("Ignored")
+
+[node name="Ignored" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_1cw3p")
+
+[node name="Highlighted" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_52vjc")
+
+[node name="Selected" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_t53as")
+
+[node name="Examined" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_aptoo")
+
+[node name="ResizeActivated" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_wlfs2")
+
 [node name="NoteTextEdit" type="TextEdit" parent="."]
 visible = false
-offset_left = 50.0
-offset_top = -100.0
-offset_right = 200.0
-offset_bottom = 100.0
+offset_right = 150.0
+offset_bottom = 200.0
 wrap_mode = 1
 
+[node name="ResizeHandle" type="TextureButton" parent="."]
+visible = false
+z_index = 20
+offset_right = 64.0
+offset_bottom = 64.0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("4_ajmib")
+
 [node name="PinBody" type="Area2D" parent="."]
+metadata/_edit_lock_ = true
+metadata/_edit_group_ = true
 
 [node name="SpriteRing" type="Sprite2D" parent="PinBody"]
 z_index = 1
@@ -27,5 +165,5 @@ texture = ExtResource("2_y1lr7")
 [node name="SpriteBase" type="Sprite2D" parent="PinBody"]
 texture = ExtResource("2_xkso3")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PinBody"]
+[node name="CollisionShape2DBody" type="CollisionShape2D" parent="PinBody"]
 shape = SubResource("CircleShape2D_v5vt5")

@@ -2,19 +2,26 @@ class_name StateMachine
 extends Node
 
 @export var initial_state : NodePath = NodePath()
-@onready var _state : State = get_node(initial_state) : get = _get_state
+@onready var state : State = get_node(initial_state) : get = _get_state
 
 
 func _ready() -> void:
-	_state.on_enter({})
+	self.state.on_enter({})
 
 
 func _unhandled_input(event : InputEvent) -> void:
-	_state.on_input(event)
+	self.state.on_input(event)
+
+
+func get_state_name() -> StringName:
+	if self.state:
+		return self.state.name
+	else:
+		return ""
 
 
 func _get_state() -> State:
-	return _state
+	return state
 
 
 func transition_to(next_state_path : String, args : Dictionary = {}) -> void:
@@ -25,7 +32,7 @@ func transition_to(next_state_path : String, args : Dictionary = {}) -> void:
 	
 	target_state = get_node(next_state_path) as State
 	
-	_state.on_leave()
-	_state = target_state
-	_state.on_enter(args)
+	self.state.on_leave()
+	self.state = target_state
+	self.state.on_enter(args)
 

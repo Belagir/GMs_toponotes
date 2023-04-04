@@ -20,7 +20,6 @@ func _add_default_pin(current_zoom_level : Vector2) -> void:
 		return
 	
 	var new_pin : Pin = PinScene.instantiate() as Pin
+	self.add_child(new_pin)
 	new_pin.position = where
 	new_pin.change_note_scale(current_zoom_level)
-	new_pin.to_size(Vector2(150, 150))
-	self.add_child(new_pin)

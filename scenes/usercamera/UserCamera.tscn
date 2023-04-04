@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2avt74svovw5"]
+[gd_scene load_steps=7 format=3 uid="uid://cwp1dnef17ox5"]
 
 [ext_resource type="Script" path="res://scenes/usercamera/UserCamera.gd" id="1_7isvh"]
-[ext_resource type="Script" path="res://source/StateMachine.gd" id="2_kgqjd"]
+[ext_resource type="Script" path="res://source/state_machine/StateMachine.gd" id="2_ne6et"]
 
 [sub_resource type="GDScript" id="GDScript_64gcp"]
 resource_name = "CursorInactive"
@@ -15,6 +15,8 @@ func on_enter(args : Dictionary) -> void:
 func on_input(event : InputEvent) -> void:
 	if event.is_action_pressed(\"click left\"):
 		_owner_state_machine.transition_to(\"CursorClicking\", { \"pin hovered\" = _pin_hovered })
+	elif event.is_action_pressed(\"click right\"):
+		_owner_state_machine.transition_to(\"CursorContextClicking\", { \"pin hovered\" = _pin_hovered })
 
 
 func on_leave() -> void:
@@ -42,10 +44,10 @@ func on_input(event : InputEvent) -> void:
 		_owner_state_machine.transition_to(\"CursorDragging\", { \"pin hovered\" = _pin_hovered, \"cam start\" = owner.position, \"drag start\" = mouse_movement.position })
 	elif event.is_action_released(\"click left\"):
 		if _pin_hovered:
-			if _pin_hovered.state() == Pin.PIN_STATE.SELECTED:
-				_pin_hovered.to_state(Pin.PIN_STATE.HIGHLIGHTED)
+			if _pin_hovered.state() == \"Selected\":
+				_pin_hovered.to_state(\"Highlighted\")
 			else:
-				_pin_hovered.to_state(Pin.PIN_STATE.SELECTED)
+				_pin_hovered.to_state(\"Selected\")
 		else:
 			_flag_pins_were_deselected = false
 			GlobalEvents.pin_request_all_deselection.emit()
@@ -95,7 +97,7 @@ func on_input(event : InputEvent) -> void:
 	elif mouse_movement and not _pin_hovered:
 		owner.drag_camera(mouse_movement, _camera_start_pos, _dragging_start_pos)
 	elif mouse_movement and _pin_hovered:
-		_pin_hovered.position = owner.keep_in_my_map(owner.get_global_mouse_position())
+		_pin_hovered.move_to(owner.keep_in_my_map(owner.get_global_mouse_position()))
 
 
 func on_leave() -> void:
@@ -108,11 +110,31 @@ func _update_pin_hovered(_pin : Pin, _entered : bool) -> void:
 	pass
 "
 
+[sub_resource type="GDScript" id="GDScript_vdnpc"]
+resource_name = "CursorContextClicking"
+script/source = "extends PinHoveredAwareState
+
+
+func on_enter(args : Dictionary) -> void:
+	super(args)
+
+
+func on_input(event : InputEvent) -> void:
+	if event.is_action_released(\"click right\"):
+		if _pin_hovered:
+			_pin_hovered.to_state(\"Examined\")
+		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
+
+
+func on_leave() -> void:
+	super()
+"
+
 [node name="UserCamera" type="Camera2D"]
 script = ExtResource("1_7isvh")
 
 [node name="StateMachineClickActions" type="Node" parent="."]
-script = ExtResource("2_kgqjd")
+script = ExtResource("2_ne6et")
 initial_state = NodePath("CursorInactive")
 
 [node name="CursorInactive" type="Node" parent="StateMachineClickActions"]
@@ -123,3 +145,6 @@ script = SubResource("GDScript_nxyok")
 
 [node name="CursorDragging" type="Node" parent="StateMachineClickActions"]
 script = SubResource("GDScript_4gpp1")
+
+[node name="CursorContextClicking" type="Node" parent="StateMachineClickActions"]
+script = SubResource("GDScript_vdnpc")
