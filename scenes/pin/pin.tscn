@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://bf7mad2d768m1"]
+[gd_scene load_steps=14 format=3 uid="uid://bf7mad2d768m1"]
 
 [ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
 [ext_resource type="Texture2D" uid="uid://cuv8vetjgvjv6" path="res://images/pin/base.png" id="2_xkso3"]
 [ext_resource type="Texture2D" uid="uid://xmh55qwqom3m" path="res://images/pin/pin_ring_mk1.png" id="2_y1lr7"]
+[ext_resource type="Texture2D" uid="uid://diule3m8nieao" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
 [ext_resource type="Texture2D" uid="uid://b36m802rwabyd" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
 [ext_resource type="Script" path="res://source/state_machine/StateMachine.gd" id="4_unch0"]
 
@@ -75,7 +76,7 @@ script/source = "extends State
 
 func on_enter(args : Dictionary) -> void:
 	super(args)
-	owner.set_visibility_resize_handle(true)
+	owner.set_visibility_config_things(true)
 
 
 func on_input(_event : InputEvent) -> void:
@@ -84,7 +85,7 @@ func on_input(_event : InputEvent) -> void:
 
 func on_leave() -> void:
 	super()
-	owner.set_visibility_resize_handle(false)
+	owner.set_visibility_config_things(false)
 	GlobalEvents.pin_deselected.emit(owner)
 "
 
@@ -114,6 +115,35 @@ func on_leave() -> void:
 	owner.set_visibility_size_label(false)
 "
 
+[sub_resource type="GDScript" id="GDScript_tkdst"]
+resource_name = "DeletingInitiated"
+script/source = "extends State
+
+
+@export var deletion_timeout_seconds : float = 3.0
+
+
+func on_enter(_args : Dictionary) -> void:
+	owner.set_visibility_config_things(true)
+	owner.deletion_timer().timeout.connect(_on_deletion_timer_timeout)
+	owner.deletion_timer().start(deletion_timeout_seconds)
+
+
+func on_input(event : InputEvent) -> void:
+	if event.is_action_released(\"click left\"):
+		_owner_state_machine.transition_to(\"Examined\")
+
+
+func on_leave() -> void:
+	owner.set_visibility_config_things(false)
+	owner.deletion_timer().timeout.disconnect(_on_deletion_timer_timeout)	
+	owner.deletion_timer().stop()
+
+
+func _on_deletion_timer_timeout() -> void:
+	owner.queue_free()
+"
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_v5vt5"]
 radius = 128.0
 
@@ -140,6 +170,9 @@ script = SubResource("GDScript_aptoo")
 [node name="ResizeActivated" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_wlfs2")
 
+[node name="DeletingInitiated" type="Node" parent="StateMachine"]
+script = SubResource("GDScript_tkdst")
+
 [node name="NoteTextEdit" type="TextEdit" parent="."]
 visible = false
 offset_right = 150.0
@@ -148,11 +181,22 @@ wrap_mode = 1
 
 [node name="ResizeHandle" type="TextureButton" parent="."]
 visible = false
-z_index = 20
 offset_right = 64.0
 offset_bottom = 64.0
 scale = Vector2(0.5, 0.5)
 texture_normal = ExtResource("4_ajmib")
+
+[node name="DeleteButton" type="TextureButton" parent="."]
+visible = false
+offset_left = -32.0
+offset_top = -87.0
+offset_right = 32.0
+offset_bottom = -23.0
+texture_normal = ExtResource("4_5w6ha")
+
+[node name="DeletionTimer" type="Timer" parent="DeleteButton"]
+wait_time = 3.0
+one_shot = true
 
 [node name="SizeLabel" type="Label" parent="."]
 visible = false
@@ -160,14 +204,15 @@ offset_right = 40.0
 offset_bottom = 23.0
 
 [node name="PinBody" type="Area2D" parent="."]
+z_index = -1
 metadata/_edit_lock_ = true
 metadata/_edit_group_ = true
 
 [node name="SpriteRing" type="Sprite2D" parent="PinBody"]
-z_index = 1
 texture = ExtResource("2_y1lr7")
 
 [node name="SpriteBase" type="Sprite2D" parent="PinBody"]
+z_index = -1
 texture = ExtResource("2_xkso3")
 
 [node name="CollisionShape2DBody" type="CollisionShape2D" parent="PinBody"]

@@ -15,6 +15,8 @@ extends Node2D
 @onready var _note_edit : TextEdit = $NoteTextEdit as TextEdit
 @onready var _state_machine : StateMachine = $StateMachine as StateMachine
 @onready var _resize_handle : TextureButton = $ResizeHandle as TextureButton
+@onready var _delete_button : TextureButton = $DeleteButton as TextureButton
+@onready var _delete_timer : Timer = $DeleteButton/DeletionTimer as Timer
 @onready var _size_label : Label = $SizeLabel as Label
 
 
@@ -23,7 +25,8 @@ func _ready() -> void:
 	_pin_body.mouse_entered.connect(_pin_hovered.bind(true))
 	_pin_body.mouse_exited.connect(_pin_hovered.bind(false))
 	
-	_resize_handle.button_down.connect(_resize_handle_pressed.bind(true))
+	_resize_handle.button_down.connect(_state_machine.transition_to.bind("ResizeActivated"))
+	_delete_button.button_down.connect(_state_machine.transition_to.bind("DeletingInitiated"))
 	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
@@ -35,6 +38,11 @@ func _ready() -> void:
 func change_note_scale(new_zoom_level : Vector2) -> void:
 	_note_edit.scale.x = 1.0 / new_zoom_level.x
 	_note_edit.scale.y = 1.0 / new_zoom_level.y
+
+
+# quick and dirty deletion timer access
+func deletion_timer() -> Timer:
+	return _delete_timer
 
 
 # move the pin to another position
@@ -49,11 +57,13 @@ func set_visibility_associated_note(seen : bool) -> void:
 		_note_edit.hide()
 
 
-func set_visibility_resize_handle(seen : bool) -> void:
+func set_visibility_config_things(seen : bool) -> void:
 	if seen:
 		_resize_handle.show()
+		_delete_button.show()
 	else:
 		_resize_handle.hide()
+		_delete_button.hide()
 
 
 func set_visibility_size_label(seen : bool) -> void:
@@ -61,6 +71,7 @@ func set_visibility_size_label(seen : bool) -> void:
 		_size_label.show()
 	else:
 		_size_label.hide()
+
 
 func size() -> Vector2:
 	var radius_circle : float = 0.0
@@ -85,15 +96,19 @@ func state() -> StringName:
 # base size.
 func to_size(new_pix_size : Vector2) -> void:
 	var my_pix_size : Vector2 = self.size_unscaled()
+	var real_size : Vector2
 	
 	new_pix_size.x = clamp(new_pix_size.x, min_pin_size_px, max_pin_size_px)
 	new_pix_size.y = clamp(new_pix_size.y, min_pin_size_px, max_pin_size_px)
 	
 	_pin_body.scale = new_pix_size / my_pix_size
-	_note_edit.position.x = my_pix_size.x * _pin_body.scale.x / 1.5
-	_resize_handle.position = (my_pix_size * _pin_body.scale / 2) - (_resize_handle.size * _resize_handle.scale)
-	_size_label.position = (my_pix_size * _pin_body.scale / 2)
+	real_size =  my_pix_size.x * _pin_body.scale
+	
+	_note_edit.position.x = real_size.x / 1.5
+	_resize_handle.position = (real_size / 2) - (_resize_handle.size * _resize_handle.scale)
+	_size_label.position = (real_size / 2)
 	_size_label.text = "( %d px x %d px )" % [new_pix_size.x, new_pix_size.y]
+	_delete_button.position.y = (-real_size.y / 2) - (_delete_button.size.y * _delete_button.scale.y)
 
 
 # change the state of the pin to another state
@@ -105,7 +120,3 @@ func to_state(new_state : StringName) -> void:
 func _pin_hovered(entered : bool) -> void:
 	GlobalEvents.emit_signal("pin_hover", self, entered)
 
-
-func _resize_handle_pressed(handle_down : bool) -> void:
-	if handle_down:
-		_state_machine.transition_to("ResizeActivated")
