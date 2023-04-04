@@ -15,6 +15,7 @@ extends Node2D
 @onready var _note_edit : TextEdit = $NoteTextEdit as TextEdit
 @onready var _state_machine : StateMachine = $StateMachine as StateMachine
 @onready var _resize_handle : TextureButton = $ResizeHandle as TextureButton
+@onready var _size_label : Label = $SizeLabel as Label
 
 
 func _ready() -> void:
@@ -55,6 +56,12 @@ func set_visibility_resize_handle(seen : bool) -> void:
 		_resize_handle.hide()
 
 
+func set_visibility_size_label(seen : bool) -> void:
+	if seen:
+		_size_label.show()
+	else:
+		_size_label.hide()
+
 func size() -> Vector2:
 	var radius_circle : float = 0.0
 	if _pin_body_shape:
@@ -85,6 +92,8 @@ func to_size(new_pix_size : Vector2) -> void:
 	_pin_body.scale = new_pix_size / my_pix_size
 	_note_edit.position.x = my_pix_size.x * _pin_body.scale.x / 1.5
 	_resize_handle.position = (my_pix_size * _pin_body.scale / 2) - (_resize_handle.size * _resize_handle.scale)
+	_size_label.position = (my_pix_size * _pin_body.scale / 2)
+	_size_label.text = "( %d px x %d px )" % [new_pix_size.x, new_pix_size.y]
 
 
 # change the state of the pin to another state

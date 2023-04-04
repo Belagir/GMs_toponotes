@@ -94,7 +94,7 @@ script/source = "extends State
 
 
 func on_enter(_args : Dictionary) -> void:
-	print(\"resizing...\")
+	owner.set_visibility_size_label(true)
 
 
 func on_input(event : InputEvent) -> void:
@@ -111,7 +111,7 @@ func on_input(event : InputEvent) -> void:
 
 
 func on_leave() -> void:
-	print(\"finished resizing.\")	
+	owner.set_visibility_size_label(false)
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_v5vt5"]
@@ -153,6 +153,11 @@ offset_right = 64.0
 offset_bottom = 64.0
 scale = Vector2(0.5, 0.5)
 texture_normal = ExtResource("4_ajmib")
+
+[node name="SizeLabel" type="Label" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 23.0
 
 [node name="PinBody" type="Area2D" parent="."]
 metadata/_edit_lock_ = true
