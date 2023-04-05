@@ -9,8 +9,6 @@ func _ready() -> void:
 
 
 func _on_changed_image(new_texture : Texture2D) -> void:
-	if self.texture != null:
-		self.texture.free()
 	self.texture = new_texture
 
 

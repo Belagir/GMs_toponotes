@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clnm7esdxsm7d"
-path="res://.godot/imported/fox_downs.png-ac730a93dcc87034b7d54e78b54d723c.ctex"
+uid="uid://cbbveoputwhqa"
+path="res://.godot/imported/refresh_mk1.png-639ed86acb0e79be2e46a0aa42bb5886.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://fox_downs.png"
-dest_files=["res://.godot/imported/fox_downs.png-ac730a93dcc87034b7d54e78b54d723c.ctex"]
+source_file="res://images/interface/refresh_mk1.png"
+dest_files=["res://.godot/imported/refresh_mk1.png-639ed86acb0e79be2e46a0aa42bb5886.ctex"]
 
 [params]
 
