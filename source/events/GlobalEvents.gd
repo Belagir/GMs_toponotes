@@ -4,7 +4,7 @@ extends Node
 signal new_default_pin(current_zoom : Vector2)
 
 # the background image changed dimensions : here are the new ones
-signal background_image_dimensions_changed(new_dim : Vector2)
+signal background_image_dimensions_changed(old_dim : Vector2, new_dim : Vector2)
 
 # a new background is here !
 signal changed_background_texture(new_texture : Texture2D)

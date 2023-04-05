@@ -1,8 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://cxhxrbblmoq1r"]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" uid="uid://8gd74gycl4pg" path="res://scenes/user_interface/ui.tscn" id="1_khmq8"]
 [ext_resource type="PackedScene" uid="uid://b1tqo85m0ofcx" path="res://scenes/map/background.tscn" id="1_o0tkw"]
-[ext_resource type="PackedScene" uid="uid://cwp1dnef17ox5" path="res://scenes/usercamera/UserCamera.tscn" id="3_oxwk0"]
+[ext_resource type="PackedScene" path="res://scenes/user_camera/UserCamera.tscn" id="3_oxwk0"]
 
 [node name="Main" type="Node"]
 

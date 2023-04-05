@@ -57,6 +57,6 @@ func _change_zoom(kind : ZOOM) -> void:
 
 
 # updates the known map dimensions 
-func _update_map_dimensions(new_dim : Vector2) -> void:
+func _update_map_dimensions(_old_dim : Vector2, new_dim : Vector2) -> void:
 	_map_dimensions = new_dim
 	self.position = keep_in_my_map(self.position)

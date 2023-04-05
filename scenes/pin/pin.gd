@@ -20,6 +20,11 @@ extends Node2D
 @onready var _size_label : Label = $SizeLabel as Label
 
 
+# this is the "original position" of the pin, updated everytime it is moved directly by the user.
+# it can be used to adapt the position of the pin with no losses in the event of a background image change. 
+var _original_position : Vector2
+
+
 func _ready() -> void:
 	(_pin_body_shape.shape as CircleShape2D).radius = (_pin_body_sprite.texture as Texture2D).get_size().x / 2
 	_pin_body.mouse_entered.connect(_pin_hovered.bind(true))
@@ -32,6 +37,7 @@ func _ready() -> void:
 	
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
 	GlobalEvents.zoom_level_changed.connect(change_note_scale)
+	GlobalEvents.background_image_dimensions_changed.connect(_adapt_position_to_image_dim)
 
 
 # change the scale of the NoteEdit child
@@ -48,6 +54,7 @@ func deletion_timer() -> Timer:
 # move the pin to another position
 func move_to(target : Vector2) -> void:
 	self.position = target
+	_original_position = self.position
 
 
 func set_visibility_associated_note(seen : bool) -> void:
@@ -114,6 +121,10 @@ func to_size(new_pix_size : Vector2) -> void:
 # change the state of the pin to another state
 func to_state(new_state : StringName) -> void:
 	(_state_machine as StateMachine).transition_to(new_state)
+
+
+func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
+	self.position = self.position * (new_dim / old_dim)
 
 
 # signal that this pin is hovered

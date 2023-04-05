@@ -27,4 +27,3 @@ func _load_image_as_bg(path : String) -> void:
 	
 	if (texture != null):
 		GlobalEvents.emit_signal("changed_background_texture", texture)
-		GlobalEvents.emit_signal("background_image_dimensions_changed", texture.get_size())
