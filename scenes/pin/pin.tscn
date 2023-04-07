@@ -172,7 +172,7 @@ script = SubResource("GDScript_wlfs2")
 
 [node name="DeletingInitiated" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_tkdst")
-deletion_timeout_seconds = 2.0
+deletion_timeout_seconds = 1.5
 
 [node name="NoteTextEdit" type="TextEdit" parent="."]
 visible = false

@@ -9,15 +9,15 @@ extends Node2D
 @export_group("")
 
 
-@onready var _pin_body : Area2D = $PinBody as Area2D
-@onready var _pin_body_shape : CollisionShape2D = $PinBody/CollisionShape2DBody as CollisionShape2D
-@onready var _pin_body_sprite : Sprite2D = $PinBody/SpriteBase as Sprite2D
-@onready var _note_edit : TextEdit = $NoteTextEdit as TextEdit
-@onready var _state_machine : StateMachine = $StateMachine as StateMachine
-@onready var _resize_handle : TextureButton = $ResizeHandle as TextureButton
-@onready var _delete_button : TextureButton = $DeleteButton as TextureButton
-@onready var _delete_timer : Timer = $DeleteButton/DeletionTimer as Timer
-@onready var _size_label : Label = $SizeLabel as Label
+@onready var _pin_body := $PinBody as Area2D
+@onready var _pin_body_shape := $PinBody/CollisionShape2DBody as CollisionShape2D
+@onready var _pin_body_sprite := $PinBody/SpriteBase as Sprite2D
+@onready var _note_edit := $NoteTextEdit as TextEdit
+@onready var _state_machine := $StateMachine as StateMachine
+@onready var _resize_handle := $ResizeHandle as TextureButton
+@onready var _delete_button := $DeleteButton as TextureButton
+@onready var _delete_timer := $DeleteButton/DeletionTimer as Timer
+@onready var _size_label := $SizeLabel as Label
 
 
 # this is the "original position" of the pin, updated everytime it is moved directly by the user.
