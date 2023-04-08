@@ -1,5 +1,6 @@
 extends Sprite2D
 
+# pin scene for instanciation purposes
 const PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 
 
@@ -10,6 +11,118 @@ func _ready() -> void:
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
 
+# resets the map to a blank state
+func reset_map() -> void:
+	self.texture = null
+	for child in get_children():
+		if child is Pin: child.queue_free()
+
+
+# save the node's important information to a byte buffer
+func save_node_to(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
+	var image := self.texture.get_image()
+	var image_data := image.get_data()
+	var image_data_compressed := image_data.compress(FileAccess.COMPRESSION_FASTLZ)
+	var tmp_buffer : PackedByteArray = []
+	
+	# we want to convert the texture to an image to compress and store it
+	if (not image) or (len(image_data) == 0) or (len(image_data_compressed) == 0):
+		return SaveFile.SAVEFILE_ERROR.FATAL
+	
+	buffer.resize(20)
+	
+	# image size
+	buffer.encode_u32(0, image.get_width())
+	buffer.encode_u32(4, image.get_height())
+	# image format
+	buffer.encode_u32(8, image.get_format())
+	# uncompressed image byte length
+	buffer.encode_u32(12, len(image_data))
+	# compressed image byte length
+	buffer.encode_u32(16, len(image_data_compressed))
+	
+	buffer.append_array(image_data_compressed)
+	
+	tmp_buffer.resize(4)
+	tmp_buffer.encode_u32(0, self._number_of_pins())
+	buffer.append_array(tmp_buffer)
+	self._append_encode_all_pins(buffer)
+	
+	return SaveFile.SAVEFILE_ERROR.NONE
+
+
+# load the node's important information from a byte buffer
+func load_node_from(version : int, buffer : PackedByteArray) -> void:
+	var image : Image
+	var new_texture : Texture2D
+	var image_info : Dictionary = {}
+	var image_data : PackedByteArray
+	var byte_offset : int = 0
+	
+	image_info["width"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	image_info["height"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4	
+	image_info["format"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4	
+	image_info["data length"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	image_info["compressed data length"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	
+	image_data = buffer \
+					.slice(byte_offset, byte_offset+image_info["compressed data length"]) \
+					.decompress(image_info["data length"], FileAccess.COMPRESSION_FASTLZ)
+	byte_offset += image_info["compressed data length"]
+	
+	image = Image.create_from_data(image_info["width"], image_info["height"], false, image_info["format"], image_data)
+	if not image:
+		return;
+	
+	self.reset_map()
+	
+	new_texture = ImageTexture.create_from_image(image)
+	GlobalEvents.changed_background_texture.emit(new_texture)
+	
+	image_info["pins number"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	self._decode_all_pins_from(version, buffer.slice(byte_offset), image_info["pins number"])
+
+
+func _number_of_pins() -> int:
+	var children : Array[Node] = self.get_children()
+	var nb_pins : int = 0
+	for child in children:
+		if child is Pin:
+			nb_pins += 1
+	return nb_pins
+
+
+func _append_encode_all_pins(buffer : PackedByteArray) -> void:
+	var children : Array[Node] = self.get_children()
+	var pin_buffer : PackedByteArray = []
+	var child_pin : Pin = null
+	
+	for child in children:
+		child_pin = child as Pin
+		if child_pin:
+			child_pin.to_byte_array(pin_buffer)
+			buffer.append_array(pin_buffer)
+
+
+func _decode_all_pins_from(version : int, buffer : PackedByteArray, nb_pins : int) -> void:
+	var new_pin : Pin
+	var byte_offset : int = 0
+	var size_pin_data : int = 0
+	
+	for i in range(nb_pins):
+		new_pin = PinScene.instantiate() as Pin
+		self.add_child(new_pin)
+		size_pin_data = new_pin.from_byte_array(version, buffer.slice(byte_offset))
+		byte_offset += size_pin_data
+
+
+# code executed when a new texture is selected (from some other node) to be the background image.
 func _on_changed_image(new_texture : Texture2D) -> void:
 	var old_size : Vector2 = self.texture.get_size() if self.texture else Vector2(0, 0)
 	var new_size : Vector2 = new_texture.get_size() if new_texture else Vector2(0, 0)
@@ -17,6 +130,7 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	self.texture = new_texture
 
 
+# add a default, blank pin where the mouse is, provided the pin can be placed on the current texture
 func _add_default_pin(current_zoom_level : Vector2) -> void:
 	var where := self.get_global_mouse_position()
 	if not self.texture:
@@ -29,39 +143,3 @@ func _add_default_pin(current_zoom_level : Vector2) -> void:
 	self.add_child(new_pin)
 	new_pin.move_to(where)
 	new_pin.change_note_scale(current_zoom_level)
-
-
-func save_node_to(buffer : PackedByteArray) -> void:
-	var image := self.texture.get_image()
-	var image_data := image.get_data()
-	
-	buffer.resize(16)
-	
-	buffer.encode_u32(0, image.get_width())
-	buffer.encode_u32(4, image.get_height())
-	buffer.encode_u32(8, image.get_format())
-	buffer.encode_u32(12, len(image_data))
-	
-	buffer.append_array(image_data)
-
-
-func load_node_from(_version : int, buffer : PackedByteArray) -> void:
-	var image : Image
-	var new_texture : Texture2D
-	var image_info : Dictionary = {}
-	var image_data : PackedByteArray
-	
-	image_info["width"] = buffer.decode_u32(0)
-	image_info["height"] = buffer.decode_u32(4)
-	image_info["format"] = buffer.decode_u32(8)
-	image_info["data length"] = buffer.decode_u32(12)
-	
-	image_data = buffer.slice(16)
-	
-	image = Image.create_from_data(image_info["width"], image_info["height"], false, image_info["format"], image_data)
-	if not image:
-		return;
-	
-	new_texture = ImageTexture.create_from_image(image)
-	GlobalEvents.changed_background_texture.emit(new_texture)
-

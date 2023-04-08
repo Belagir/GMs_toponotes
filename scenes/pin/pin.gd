@@ -51,6 +51,49 @@ func deletion_timer() -> Timer:
 	return _delete_timer
 
 
+func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
+	buffer.resize(20)
+	
+	# position
+	buffer.encode_float(0, self.position.x)
+	buffer.encode_float(4, self.position.y)
+	# radius
+	buffer.encode_float(8, self._pin_body.scale.x)
+	buffer.encode_float(12, self._pin_body.scale.y)
+	# note text
+	buffer.encode_u32(16, self._note_edit.text.length())
+	buffer.append_array(self._note_edit.text.to_utf8_buffer())
+	
+	return SaveFile.SAVEFILE_ERROR.NONE
+
+
+func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
+	var decoded_info : Dictionary = {}
+	var byte_offset : int = 0
+	
+	decoded_info["pos x"] = buffer.decode_float(byte_offset)
+	byte_offset += 4
+	decoded_info["pos y"] = buffer.decode_float(byte_offset)
+	byte_offset += 4
+	
+	decoded_info["scale x"] = buffer.decode_float(byte_offset)
+	byte_offset += 4
+	decoded_info["scale y"] = buffer.decode_float(byte_offset)
+	byte_offset += 4
+	
+	decoded_info["note length"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	decoded_info["note content"] = buffer.slice(byte_offset, byte_offset + decoded_info["note length"]).get_string_from_utf8()
+	byte_offset += (decoded_info["note content"] as String).length()
+	
+	self.move_to(Vector2(decoded_info["pos x"], decoded_info["pos y"]))
+	self._pin_body.scale = Vector2(decoded_info["scale x"], decoded_info["scale y"])
+	self._note_edit.text = decoded_info["note content"]
+	self._state_machine.transition_to("Ignored")
+	
+	return byte_offset
+
+
 # move the pin to another position
 func move_to(target : Vector2) -> void:
 	self.position = target
