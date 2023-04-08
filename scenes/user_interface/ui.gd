@@ -6,6 +6,8 @@ extends HBoxContainer
 # 
 # Global events sent :
 # - changed_background_texture -> request a texture change for the background
+# - request_map_wipe -> request a new map
+
 
 const PROGRAM_FILE_EXTENSION : String = "gmtpn"
 
@@ -19,6 +21,7 @@ var _modified_sice_last_save := false
 func _ready() -> void:
 	# buttons spawning their dialog window
 	%ChangeImageButton.pressed.connect(%ChangeImageButton/ChangeImageFileDialog.show)
+	%NewButton.pressed.connect(_on_new_button_pressed)
 	%SaveAsButton.pressed.connect(%SaveAsButton/SaveMapFileDialog.show)
 	%SaveButton.pressed.connect(_save_map)
 	%LoadButton.pressed.connect(_on_load_button_pressed)
@@ -27,7 +30,8 @@ func _ready() -> void:
 	%ChangeImageButton/ChangeImageFileDialog.file_selected.connect(_on_load_image_dialog_file_selected)
 	%SaveAsButton/SaveMapFileDialog.file_selected.connect(_on_save_map_file_dialog_file_selected)
 	%LoadButton/LoadMapFileDialog.file_selected.connect(_on_load_map_file_dialog_file_selected)
-	$LoadButton/ConfirmationDialog.confirmed.connect(%LoadButton/LoadMapFileDialog.show)
+	%LoadButton/DiscardToLoadDialog.confirmed.connect(%LoadButton/LoadMapFileDialog.show)
+	%NewButton/DiscardToNewDialog.confirmed.connect(_wipe_map)
 	
 	# refresh button
 	%RefreshButton.pressed.connect(_load_image_as_bg.bind(_bg_image_path))
@@ -63,7 +67,7 @@ func _on_load_button_pressed() -> void:
 	if not _modified_sice_last_save:
 		$LoadButton/LoadMapFileDialog.show()
 	else:
-		$LoadButton/ConfirmationDialog.show()
+		%LoadButton/DiscardToLoadDialog.show()
 
 
 func _load_image_as_bg(path : String) -> void:
@@ -87,3 +91,15 @@ func _save_map() -> void:
 
 func _on_map_changed() -> void:
 	_modified_sice_last_save = true
+
+
+func _on_new_button_pressed() -> void:
+	if not _modified_sice_last_save:
+		_wipe_map()
+	else:
+		%NewButton/DiscardToNewDialog.show()
+
+
+func _wipe_map() -> void:
+	GlobalEvents.request_map_wipe.emit()
+	_modified_sice_last_save = false

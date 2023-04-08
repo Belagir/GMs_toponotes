@@ -23,3 +23,6 @@ signal zoom_level_changed(new_level : Vector2)
 
 # some change was applied to the map
 signal map_got_a_change()
+
+# a new blank map is requested
+signal request_map_wipe()

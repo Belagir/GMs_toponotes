@@ -13,10 +13,11 @@ script/source = "extends State
 func on_enter(_args : Dictionary) -> void:
 	owner.toggle_controls_group(\"save_buttons\", false)
 	owner.toggle_controls_group(\"bg_image_path_dependant\", false)
+	owner.toggle_controls_group(\"new_buttons\", false)
 	GlobalEvents.changed_background_texture.connect(_on_bg_texture_changed)
 
 
-func on_exit() -> void:
+func on_leave() -> void:
 	GlobalEvents.changed_background_texture.disconnect(_on_bg_texture_changed)
 
 
@@ -32,7 +33,12 @@ script/source = "extends State
 func on_enter(_args : Dictionary) -> void:
 	owner.toggle_controls_group(\"save_buttons\", true)
 	owner.toggle_controls_group(\"bg_image_path_dependant\", true)
+	owner.toggle_controls_group(\"new_buttons\", true)
+	GlobalEvents.request_map_wipe.connect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
 
+
+func on_leave() -> void:
+	GlobalEvents.request_map_wipe.disconnect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
 "
 
 [node name="UI" type="HBoxContainer"]
@@ -53,6 +59,17 @@ script = SubResource("GDScript_xkb6o")
 [node name="MapLoaded" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_6db4c")
 
+[node name="NewButton" type="Button" parent="." groups=["new_buttons"]]
+unique_name_in_owner = true
+layout_mode = 2
+text = "New"
+
+[node name="DiscardToNewDialog" type="ConfirmationDialog" parent="NewButton"]
+title = "New map"
+position = Vector2i(100, 100)
+ok_button_text = "Continue and discard"
+dialog_text = "The map changed since the last save. Continue anyway ?"
+
 [node name="LoadButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
@@ -67,7 +84,8 @@ file_mode = 0
 access = 2
 filters = PackedStringArray("*.gmtpn")
 
-[node name="ConfirmationDialog" type="ConfirmationDialog" parent="LoadButton"]
+[node name="DiscardToLoadDialog" type="ConfirmationDialog" parent="LoadButton"]
+title = "Load a map"
 position = Vector2i(100, 100)
 ok_button_text = "Continue and discard"
 dialog_text = "The map changed since the last save. Continue anyway ?"

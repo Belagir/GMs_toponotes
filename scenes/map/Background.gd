@@ -3,6 +3,7 @@ extends Sprite2D
 # Global events listened to :
 # - new_default_pin -> will add a pin at the mouse's position
 # - changed_background_texture -> will change the texture
+# - request_map_wipe -> to roll the map back to a blank state
 #
 # Global events sent :
 # - changed_background_texture -> orders itself to change texture (in a load save scenario)
@@ -16,6 +17,7 @@ const PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 func _ready() -> void:
 	GlobalEvents.new_default_pin.connect(_add_default_pin)
 	GlobalEvents.changed_background_texture.connect(_on_changed_image)
+	GlobalEvents.request_map_wipe.connect(reset_map)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
