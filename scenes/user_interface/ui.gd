@@ -1,7 +1,10 @@
 extends HBoxContainer
 
-signal action_change_background(path : String)
-
+# Global events listened to :
+# - changed_background_texture -> to activate / deactivate save and load buttons
+# 
+# Global events sent :
+# - changed_background_texture -> request a texture change for the background
 
 const PROGRAM_FILE_EXTENSION : String = "gmtpn"
 
@@ -43,6 +46,7 @@ func _on_save_map_file_dialog_file_selected(path : String) -> void:
 
 func _on_load_map_file_dialog_file_selected(path : String) -> void:
 	var scene_root : Node = self.get_node("/root/Main")
+	_save_path = path
 	SaveFile.load_state_from(scene_root, path)
 
 
@@ -54,7 +58,7 @@ func _load_image_as_bg(path : String) -> void:
 	var texture : Texture = ImageTexture.create_from_image(buffer)
 	
 	if (texture != null):
-		GlobalEvents.emit_signal("changed_background_texture", texture)
+		GlobalEvents.changed_background_texture.emit(texture)
 
 
 func _save_map() -> void:

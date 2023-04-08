@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://8gd74gycl4pg"]
+[gd_scene load_steps=6 format=3 uid="uid://8gd74gycl4pg"]
 
 [ext_resource type="Script" path="res://scenes/user_interface/ui.gd" id="1_tc2wf"]
 [ext_resource type="Texture2D" uid="uid://cbbveoputwhqa" path="res://images/interface/refresh_mk1.png" id="2_m6q3k"]
@@ -35,11 +35,6 @@ func on_enter(_args : Dictionary) -> void:
 
 "
 
-[sub_resource type="GDScript" id="GDScript_d7mns"]
-resource_name = "MapLoaded"
-script/source = "extends State
-"
-
 [node name="UI" type="HBoxContainer"]
 anchors_preset = 10
 anchor_right = 1.0
@@ -57,9 +52,6 @@ script = SubResource("GDScript_xkb6o")
 
 [node name="MapLoadedNoSaveFile" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_6db4c")
-
-[node name="MapLoaded" type="Node" parent="StateMachine"]
-script = SubResource("GDScript_d7mns")
 
 [node name="LoadButton" type="Button" parent="."]
 unique_name_in_owner = true

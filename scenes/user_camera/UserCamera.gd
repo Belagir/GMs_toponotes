@@ -1,5 +1,15 @@
 extends Camera2D
 
+# Global events listened to :
+# - background_image_dimensions_changed  -> to update the remembered background dimensions and limit 
+#   camera movement
+# - pin_deselected -> to make the distinction between a click to deselect pins or add a new one
+#
+# Global events sent :
+# - zoom_level_changed -> the zoom level changed
+# - pin_request_all_deselection  -> deselect all pins
+# - new_default_pin -> add a pin
+
 # kind of zoom action
 enum ZOOM { IN, OUT }
 

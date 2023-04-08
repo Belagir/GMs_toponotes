@@ -1,6 +1,14 @@
 class_name Pin
 extends Node2D
 
+# Global events listened to :
+# - pin_request_all_deselection -> will deselect the pin
+# - zoom_level_changed -> will actualize the note's size
+# - background_image_dimensions_changed -> to change the pin's position to match the new ratio
+#
+# Global events sent :
+# - pin_hover -> notify the rest of the program that this pin is hovered by the mouse
+# - pin_deselected -> this pin was selected and some input was sent to deselect it
 
 @export_group("pin sizing")
 @export_range(10, 1000, 1) var min_pin_size_px : int = 60
@@ -9,6 +17,7 @@ extends Node2D
 @export_group("")
 
 
+# pin components for ease of (and typed) access
 @onready var _pin_body := $PinBody as Area2D
 @onready var _pin_body_shape := $PinBody/CollisionShape2DBody as CollisionShape2D
 @onready var _pin_body_sprite := $PinBody/SpriteBase as Sprite2D
@@ -67,20 +76,25 @@ func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	return SaveFile.SAVEFILE_ERROR.NONE
 
 
+# read the pin's encoded data from a buffer and return the decoded data's length
+# this will modify the pin to match the decoded data.
 func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	var decoded_info : Dictionary = {}
 	var byte_offset : int = 0
 	
+	# fetch position
 	decoded_info["pos x"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
 	decoded_info["pos y"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
 	
+	# fetch radius
 	decoded_info["scale x"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
 	decoded_info["scale y"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
 	
+	# fetch note text	
 	decoded_info["note length"] = buffer.decode_u32(byte_offset)
 	byte_offset += 4
 	decoded_info["note content"] = buffer.slice(byte_offset, byte_offset + decoded_info["note length"]).get_string_from_utf8()
@@ -100,6 +114,7 @@ func move_to(target : Vector2) -> void:
 	_original_position = self.position
 
 
+# toggle visibility of the pin's note
 func set_visibility_associated_note(seen : bool) -> void:
 	if seen:
 		_note_edit.show()
@@ -107,6 +122,7 @@ func set_visibility_associated_note(seen : bool) -> void:
 		_note_edit.hide()
 
 
+# toggle visibility of the pin's config controls
 func set_visibility_config_things(seen : bool) -> void:
 	if seen:
 		_resize_handle.show()
@@ -116,6 +132,7 @@ func set_visibility_config_things(seen : bool) -> void:
 		_delete_button.hide()
 
 
+# toggle visibility of the pin's size label
 func set_visibility_size_label(seen : bool) -> void:
 	if seen:
 		_size_label.show()
@@ -123,6 +140,7 @@ func set_visibility_size_label(seen : bool) -> void:
 		_size_label.hide()
 
 
+# return the diameter, in pixels, of the pin.
 func size() -> Vector2:
 	var radius_circle : float = 0.0
 	if _pin_body_shape:
@@ -130,6 +148,7 @@ func size() -> Vector2:
 	return _pin_body.scale * (2 * radius_circle)
 
 
+# reurn the diameter, in pixels, of the pin, as it were unscaled
 func size_unscaled() -> Vector2:
 	var radius_circle : float = 0.0
 	if _pin_body_shape:
@@ -166,11 +185,12 @@ func to_state(new_state : StringName) -> void:
 	(_state_machine as StateMachine).transition_to(new_state)
 
 
+# change the node's postion to match the new ratio between the two sizes
 func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 	self.position = self.position * (new_dim / old_dim)
 
 
 # signal that this pin is hovered
 func _pin_hovered(entered : bool) -> void:
-	GlobalEvents.emit_signal("pin_hover", self, entered)
+	GlobalEvents.pin_hover.emit(self, entered)
 
