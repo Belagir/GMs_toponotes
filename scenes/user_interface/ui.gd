@@ -7,12 +7,14 @@ const PROGRAM_FILE_EXTENSION : String = "gmtpn"
 
 
 var _bg_image_path : String = ""
+var _save_path : String = ""
 
 
 func _ready() -> void:
 	# buttons spawning their dialog window
 	%ChangeImageButton.pressed.connect(%ChangeImageButton/ChangeImageFileDialog.show)
 	%SaveAsButton.pressed.connect(%SaveAsButton/SaveMapFileDialog.show)
+	%SaveButton.pressed.connect(_save_map)
 	%LoadButton.pressed.connect(%LoadButton/LoadMapFileDialog.show)
 	# redirect the dialog's signals to the correct functions
 	%ChangeImageButton/ChangeImageFileDialog.file_selected.connect(_on_load_image_dialog_file_selected)
@@ -35,6 +37,7 @@ func _on_load_image_dialog_file_selected(path : String) -> void:
 func _on_save_map_file_dialog_file_selected(path : String) -> void:
 	if path.get_extension() != PROGRAM_FILE_EXTENSION:
 		path = path + "." + PROGRAM_FILE_EXTENSION
+	_save_path = path
 	SaveFile.save_state_to(self.get_tree(), path)
 
 
@@ -52,3 +55,10 @@ func _load_image_as_bg(path : String) -> void:
 	
 	if (texture != null):
 		GlobalEvents.emit_signal("changed_background_texture", texture)
+
+
+func _save_map() -> void:
+	if FileAccess.file_exists(self._save_path):
+		SaveFile.save_state_to(self.get_tree(), self._save_path)
+	else:
+		%SaveAsButton/SaveMapFileDialog.show()
