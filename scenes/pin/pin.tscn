@@ -141,6 +141,7 @@ func on_leave() -> void:
 
 
 func _on_deletion_timer_timeout() -> void:
+	GlobalEvents.map_got_a_change.emit()
 	owner.queue_free()
 "
 

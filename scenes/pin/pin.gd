@@ -42,6 +42,8 @@ func _ready() -> void:
 	_resize_handle.button_down.connect(_state_machine.transition_to.bind("ResizeActivated"))
 	_delete_button.button_down.connect(_state_machine.transition_to.bind("DeletingInitiated"))
 	
+	_note_edit.text_changed.connect(func(): GlobalEvents.map_got_a_change.emit())
+	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
@@ -67,8 +69,8 @@ func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	buffer.encode_float(0, self.position.x)
 	buffer.encode_float(4, self.position.y)
 	# radius
-	buffer.encode_float(8, self._pin_body.scale.x)
-	buffer.encode_float(12, self._pin_body.scale.y)
+	buffer.encode_float(8, self.size().x)
+	buffer.encode_float(12, self.size().y)
 	# note text
 	buffer.encode_u32(16, self._note_edit.text.length())
 	buffer.append_array(self._note_edit.text.to_utf8_buffer())
@@ -89,9 +91,9 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	byte_offset += 4
 	
 	# fetch radius
-	decoded_info["scale x"] = buffer.decode_float(byte_offset)
+	decoded_info["size x"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
-	decoded_info["scale y"] = buffer.decode_float(byte_offset)
+	decoded_info["size y"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
 	
 	# fetch note text	
@@ -101,7 +103,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	byte_offset += (decoded_info["note content"] as String).length()
 	
 	self.move_to(Vector2(decoded_info["pos x"], decoded_info["pos y"]))
-	self._pin_body.scale = Vector2(decoded_info["scale x"], decoded_info["scale y"])
+	self.to_size(Vector2(decoded_info["size x"], decoded_info["size y"]))
 	self._note_edit.text = decoded_info["note content"]
 	self._state_machine.transition_to("Ignored")
 	
@@ -112,6 +114,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 func move_to(target : Vector2) -> void:
 	self.position = target
 	_original_position = self.position
+	GlobalEvents.map_got_a_change.emit()
 
 
 # toggle visibility of the pin's note
@@ -178,6 +181,7 @@ func to_size(new_pix_size : Vector2) -> void:
 	_size_label.position = (real_size / 2)
 	_size_label.text = "( %d px x %d px )" % [new_pix_size.x, new_pix_size.y]
 	_delete_button.position.y = (-real_size.y / 2) - (_delete_button.size.y * _delete_button.scale.y)
+	GlobalEvents.map_got_a_change.emit()
 
 
 # change the state of the pin to another state
@@ -188,6 +192,7 @@ func to_state(new_state : StringName) -> void:
 # change the node's postion to match the new ratio between the two sizes
 func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 	self.position = self.position * (new_dim / old_dim)
+	GlobalEvents.map_got_a_change.emit()
 
 
 # signal that this pin is hovered

@@ -21,7 +21,7 @@ func on_exit() -> void:
 
 
 func _on_bg_texture_changed(_texture : Texture) -> void:
-	_owner_state_machine.transition_to(\"MapLoadedNoSaveFile\")
+	_owner_state_machine.transition_to(\"MapLoaded\")
 "
 
 [sub_resource type="GDScript" id="GDScript_6db4c"]
@@ -50,7 +50,7 @@ initial_state = NodePath("NoMapLoaded")
 [node name="NoMapLoaded" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_xkb6o")
 
-[node name="MapLoadedNoSaveFile" type="Node" parent="StateMachine"]
+[node name="MapLoaded" type="Node" parent="StateMachine"]
 script = SubResource("GDScript_6db4c")
 
 [node name="LoadButton" type="Button" parent="."]
@@ -66,6 +66,11 @@ ok_button_text = "Open"
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.gmtpn")
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="LoadButton"]
+position = Vector2i(100, 100)
+ok_button_text = "Continue and discard"
+dialog_text = "The map changed since the last save. Continue anyway ?"
 
 [node name="SaveButton" type="Button" parent="." groups=["save_buttons"]]
 unique_name_in_owner = true

@@ -20,3 +20,6 @@ signal pin_deselected(pin : Node2D)
 
 # a new zoom level has been reached by the camera
 signal zoom_level_changed(new_level : Vector2)
+
+# some change was applied to the map
+signal map_got_a_change()

@@ -72,6 +72,7 @@ func reset_map() -> void:
 	self.texture = null
 	for child in get_children():
 		if child is Pin: child.queue_free()
+	GlobalEvents.map_got_a_change.emit()
 
 
 # save the node's important information to a byte buffer
@@ -123,6 +124,7 @@ func _add_default_pin(current_zoom_level : Vector2) -> void:
 	self.add_child(new_pin)
 	new_pin.move_to(where)
 	new_pin.change_note_scale(current_zoom_level)
+	GlobalEvents.map_got_a_change.emit()	
 
 
 # appends the pin's binary data to the provided buffer.
@@ -167,3 +169,4 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	var new_size : Vector2 = new_texture.get_size() if new_texture else Vector2(0, 0)
 	GlobalEvents.background_image_dimensions_changed.emit(old_size, new_size)
 	self.texture = new_texture
+	GlobalEvents.map_got_a_change.emit()
