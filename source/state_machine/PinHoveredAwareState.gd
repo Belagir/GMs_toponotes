@@ -2,13 +2,13 @@ class_name PinHoveredAwareState
 extends State
 
 
-var _pin_hovered : Pin = null
+var _pins_hovered : Array[Pin] = []
 
 
 func on_enter(args : Dictionary) -> void:
 	GlobalEvents.pin_hover.connect(_update_pin_hovered)
-	if args.has("pin hovered"):
-		_pin_hovered = args["pin hovered"]
+	if args.has("pins hovered"):
+		_pins_hovered = args["pins hovered"]
 
 
 func on_leave() -> void:
@@ -16,8 +16,12 @@ func on_leave() -> void:
 	
 
 func _update_pin_hovered(pin : Pin, entered : bool) -> void:
-	_pin_hovered = pin if entered else null
-	if _pin_hovered and _pin_hovered.state() == "Ignored":
-		_pin_hovered.to_state("Highlighted")
-	elif not _pin_hovered and pin.state() == "Highlighted":
-		pin.to_state("Ignored")
+	if entered:
+		_pins_hovered.insert(_pins_hovered.bsearch_custom(pin, _pin_is_over_other), pin)
+	else:
+		_pins_hovered.remove_at(_pins_hovered.bsearch_custom(pin, _pin_is_over_other))
+
+
+func _pin_is_over_other(pin1 : Pin, pin2 : Pin) -> bool:
+	return pin1.z_index > pin2.z_index
+

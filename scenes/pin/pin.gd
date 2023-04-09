@@ -56,6 +56,8 @@ func _ready() -> void:
 	GlobalEvents.zoom_level_changed.connect(change_note_scale)
 	GlobalEvents.background_image_dimensions_changed.connect(_adapt_position_to_image_dim)
 	GlobalEvents.bring_pins_z_level_down.connect(_bring_down)
+	
+	_note_edit.text_changed.emit()
 
 
 # change the scale of the NoteEdit child

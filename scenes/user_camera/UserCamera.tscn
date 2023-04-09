@@ -14,9 +14,9 @@ func on_enter(args : Dictionary) -> void:
 
 func on_input(event : InputEvent) -> void:
 	if event.is_action_pressed(\"click left\"):
-		_owner_state_machine.transition_to(\"CursorClicking\", { \"pin hovered\" = _pin_hovered })
+		_owner_state_machine.transition_to(\"CursorClicking\", { \"pins hovered\" = _pins_hovered })
 	elif event.is_action_pressed(\"click right\"):
-		_owner_state_machine.transition_to(\"CursorContextClicking\", { \"pin hovered\" = _pin_hovered })
+		_owner_state_machine.transition_to(\"CursorContextClicking\", { \"pins hovered\" = _pins_hovered })
 
 
 func on_leave() -> void:
@@ -41,24 +41,24 @@ func on_input(event : InputEvent) -> void:
 	var mouse_movement : InputEventMouseMotion = event as InputEventMouseMotion
 	
 	if mouse_movement:
-		_owner_state_machine.transition_to(\"CursorDragging\", { \"pin hovered\" = _pin_hovered, \"cam start\" = owner.position, \"drag start\" = mouse_movement.position })
+		_owner_state_machine.transition_to(\"CursorDragging\", { \"pins hovered\" = _pins_hovered, \"cam start\" = owner.position, \"drag start\" = mouse_movement.position })
 	elif event.is_action_released(\"click left\"):
-		if _pin_hovered:
-			if _pin_hovered.state() == \"Selected\":
-				_pin_hovered.to_state(\"Highlighted\")
+		if _pins_hovered.size() > 0:
+			if _pins_hovered.front().state() == \"Selected\":
+				_pins_hovered.front().to_state(\"Highlighted\")
 			else:
-				_pin_hovered.to_state(\"Selected\")
+				_pins_hovered.front().to_state(\"Selected\")
 		else:
 			_flag_pins_were_deselected = false
 			GlobalEvents.pin_request_all_deselection.emit()
 			if not _flag_pins_were_deselected:
 				GlobalEvents.new_default_pin.emit()
-		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
+		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
 
 
 func on_leave() -> void:
 	super()
-	GlobalEvents.pin_deselected.disconnect(_pin_was_deselected)	
+	GlobalEvents.pin_deselected.disconnect(_pin_was_deselected)
 
 
 func _pin_was_deselected(_pin : Node2D) -> void:
@@ -76,16 +76,19 @@ var _camera_start_pos : Vector2 = Vector2(0, 0)
 # mouse start position in the event of dragging
 var _dragging_start_pos : Vector2 = Vector2(0, 0)
 
+var _dragged_pin : Pin = null
+
 
 func on_enter(args : Dictionary) -> void:
 	super(args)
 	
 	if not args.has_all([\"cam start\", \"drag start\"]):
-		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
+		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
 		return
 	
 	_camera_start_pos = args[\"cam start\"]
 	_dragging_start_pos = args[\"drag start\"]
+	_dragged_pin = _pins_hovered.front() if _pins_hovered.size() > 0 else null
 
 
 
@@ -93,21 +96,16 @@ func on_input(event : InputEvent) -> void:
 	var mouse_movement : InputEventMouseMotion = event as InputEventMouseMotion
 	
 	if event.is_action_released(\"click left\"):
-		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
-	elif mouse_movement and not _pin_hovered:
+		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
+	elif mouse_movement and not _dragged_pin:
 		owner.drag_camera(mouse_movement, _camera_start_pos, _dragging_start_pos)
-	elif mouse_movement and _pin_hovered:
-		_pin_hovered.move_to(owner.keep_in_my_map(owner.get_global_mouse_position()))
+	elif mouse_movement and _dragged_pin:
+		_dragged_pin.move_to(owner.keep_in_my_map(owner.get_global_mouse_position()))
 
 
 func on_leave() -> void:
 	super()
 
-
-# highjack the signal reception of 'pin hovered' so the pin or the map cannot escape the drag even
-# if the cursor changes context
-func _update_pin_hovered(_pin : Pin, _entered : bool) -> void:
-	pass
 "
 
 [sub_resource type="GDScript" id="GDScript_vdnpc"]
@@ -121,9 +119,9 @@ func on_enter(args : Dictionary) -> void:
 
 func on_input(event : InputEvent) -> void:
 	if event.is_action_released(\"click right\"):
-		if _pin_hovered:
-			_pin_hovered.to_state(\"Examined\")
-		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
+		if _pins_hovered.size() > 0:
+			_pins_hovered.front().to_state(\"Examined\")
+		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
 
 
 func on_leave() -> void:

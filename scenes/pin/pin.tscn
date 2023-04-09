@@ -67,6 +67,7 @@ func on_leave() -> void:
 	super()
 	owner.set_visibility_associated_note(false)
 	GlobalEvents.pin_deselected.emit(owner)
+
 "
 
 [sub_resource type="GDScript" id="GDScript_aptoo"]
@@ -179,6 +180,7 @@ deletion_timeout_seconds = 1.5
 visible = false
 offset_right = 150.0
 offset_bottom = 200.0
+text = "Content !"
 wrap_mode = 1
 
 [node name="ResizeHandle" type="TextureButton" parent="."]
