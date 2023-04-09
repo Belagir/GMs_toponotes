@@ -102,4 +102,6 @@ func _on_new_button_pressed() -> void:
 
 func _wipe_map() -> void:
 	GlobalEvents.request_map_wipe.emit()
+	_bg_image_path = ""
+	_save_path = ""
 	_modified_sice_last_save = false

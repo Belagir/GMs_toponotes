@@ -56,6 +56,7 @@ script/source = "extends State
 func on_enter(args : Dictionary) -> void:
 	super(args)
 	owner.set_visibility_associated_note(true)
+	GlobalEvents.pin_selected.emit(owner)
 
 
 func on_input(_event : InputEvent) -> void:
@@ -149,7 +150,6 @@ func _on_deletion_timer_timeout() -> void:
 radius = 128.0
 
 [node name="Pin" type="Node2D"]
-z_index = 5
 script = ExtResource("1_e4dum")
 
 [node name="StateMachine" type="Node" parent="."]
@@ -218,12 +218,11 @@ z_index = -1
 metadata/_edit_lock_ = true
 metadata/_edit_group_ = true
 
+[node name="SpriteBase" type="Sprite2D" parent="PinBody"]
+texture = ExtResource("2_xkso3")
+
 [node name="SpriteRing" type="Sprite2D" parent="PinBody"]
 texture = ExtResource("2_y1lr7")
-
-[node name="SpriteBase" type="Sprite2D" parent="PinBody"]
-z_index = -1
-texture = ExtResource("2_xkso3")
 
 [node name="CollisionShape2DBody" type="CollisionShape2D" parent="PinBody"]
 shape = SubResource("CircleShape2D_v5vt5")

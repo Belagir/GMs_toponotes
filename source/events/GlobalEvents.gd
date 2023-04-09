@@ -10,7 +10,13 @@ signal background_image_dimensions_changed(old_dim : Vector2, new_dim : Vector2)
 signal changed_background_texture(new_texture : Texture2D)
 
 # a pin is currently being hovered by the mouse.
-signal pin_hover(pin : Node2D, entered : bool)
+signal pin_hover(pin : Pin, entered : bool)
+
+# a pin was selected
+signal pin_selected(pin : Pin)
+
+# some object was brought to the yop z-level from he mimit value.
+signal bring_pins_z_level_down(limit : int)
 
 # deselect all pins
 signal pin_request_all_deselection()

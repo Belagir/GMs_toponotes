@@ -55,6 +55,7 @@ func _ready() -> void:
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
 	GlobalEvents.zoom_level_changed.connect(change_note_scale)
 	GlobalEvents.background_image_dimensions_changed.connect(_adapt_position_to_image_dim)
+	GlobalEvents.bring_pins_z_level_down.connect(_bring_down)
 
 
 # change the scale of the NoteEdit child
@@ -73,7 +74,7 @@ func deletion_timer() -> Timer:
 func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	var text_buffer : PackedByteArray = []
 	
-	buffer.resize(20)
+	buffer.resize(24)
 	
 	# position
 	buffer.encode_float(0, self.position.x)
@@ -81,9 +82,11 @@ func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	# radius
 	buffer.encode_float(8, self.size().x)
 	buffer.encode_float(12, self.size().y)
+	# z index
+	buffer.encode_u32(16, self.z_index)
 	# note text
 	text_buffer = self._note_edit.text.to_utf8_buffer()
-	buffer.encode_u32(16, len(text_buffer))
+	buffer.encode_u32(20, len(text_buffer))
 	buffer.append_array(text_buffer)
 	
 	return SaveFile.SAVEFILE_ERROR.NONE
@@ -106,6 +109,10 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	byte_offset += 4
 	decoded_info["size y"] = buffer.decode_float(byte_offset)
 	byte_offset += 4
+
+	# fetch z index
+	decoded_info["z index"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
 	
 	# fetch note text	
 	decoded_info["note length"] = buffer.decode_u32(byte_offset)
@@ -115,6 +122,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	
 	self.move_to(Vector2(decoded_info["pos x"], decoded_info["pos y"]))
 	self.to_size(Vector2(decoded_info["size x"], decoded_info["size y"]))
+	self.z_index = decoded_info["z index"]
 	self.set_note_text(decoded_info["note content"])
 	self._state_machine.transition_to("Ignored")
 	
@@ -223,11 +231,18 @@ func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 	GlobalEvents.map_got_a_change.emit()
 
 
+# bring the pin's z-index down if it is above the limit
+func _bring_down(limit_level : int) -> void:
+	if self.z_index > limit_level:
+		self.z_index -= 1
+
+
 # signal that this pin is hovered
 func _pin_hovered(entered : bool) -> void:
 	GlobalEvents.pin_hover.emit(self, entered)
 
 
+# when the note text changes, the highlight excerpt must be updated
 func _note_text_changed() -> void:
 	GlobalEvents.map_got_a_change.emit()
 	if (_note_edit.text.find("\n") < DISPLAYED_CHARACTERS_HIGHLIGHTED) and _note_edit.text.find("\n") != -1:

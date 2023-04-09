@@ -16,6 +16,7 @@ const PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 
 
 var _zoom_level := Vector2(1, 1)
+var _max_pin_z_level : int = 1
 
 
 func _ready() -> void:
@@ -23,6 +24,7 @@ func _ready() -> void:
 	GlobalEvents.changed_background_texture.connect(_on_changed_image)
 	GlobalEvents.request_map_wipe.connect(reset_map)
 	GlobalEvents.zoom_level_changed.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
+	GlobalEvents.pin_selected.connect(_bring_pin_up)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
@@ -127,10 +129,8 @@ func _add_default_pin() -> void:
 		return
 	
 	# adding the pin
-	var new_pin : Pin = PinScene.instantiate() as Pin
-	self.add_child(new_pin)
+	var new_pin := self._add_pin()
 	new_pin.move_to(where)
-	new_pin.change_note_scale(_zoom_level)
 	GlobalEvents.map_got_a_change.emit()
 
 
@@ -147,6 +147,11 @@ func _append_encode_all_pins(buffer : PackedByteArray) -> void:
 			buffer.append_array(pin_buffer)
 
 
+func _bring_pin_up(pin : Pin) -> void:
+	GlobalEvents.bring_pins_z_level_down.emit(pin.z_index)
+	pin.z_index = _max_pin_z_level
+
+
 # decode the pin's binary data from the provided buffer and adds them to the node.
 func _decode_all_pins_from(version : int, buffer : PackedByteArray, nb_pins : int) -> void:
 	var new_pin : Pin
@@ -154,10 +159,8 @@ func _decode_all_pins_from(version : int, buffer : PackedByteArray, nb_pins : in
 	var size_pin_data : int = 0
 	
 	for i in range(nb_pins):
-		new_pin = PinScene.instantiate() as Pin
-		self.add_child(new_pin)
+		new_pin = self._add_pin()
 		size_pin_data = new_pin.from_byte_array(version, buffer.slice(byte_offset))
-		new_pin.change_note_scale(_zoom_level)
 		byte_offset += size_pin_data
 
 
@@ -178,3 +181,12 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	GlobalEvents.background_image_dimensions_changed.emit(old_size, new_size)
 	self.texture = new_texture
 	GlobalEvents.map_got_a_change.emit()
+
+
+func _add_pin() -> Pin:
+	var new_pin := PinScene.instantiate() as Pin
+	self.add_child(new_pin)
+	new_pin.change_note_scale(_zoom_level)
+	_max_pin_z_level += 1
+	new_pin.z_index = _max_pin_z_level
+	return new_pin
