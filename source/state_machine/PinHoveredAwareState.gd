@@ -18,8 +18,12 @@ func on_leave() -> void:
 func _update_pin_hovered(pin : Pin, entered : bool) -> void:
 	if entered:
 		_pins_hovered.insert(_pins_hovered.bsearch_custom(pin, _pin_is_over_other), pin)
+		if pin.state() == "Ignored":
+			pin.to_state("Highlighted")
 	else:
 		_pins_hovered.remove_at(_pins_hovered.bsearch_custom(pin, _pin_is_over_other))
+		if pin.state() == "Highlighted":
+			pin.to_state("Ignored")
 
 
 func _pin_is_over_other(pin1 : Pin, pin2 : Pin) -> bool:

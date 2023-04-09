@@ -180,7 +180,6 @@ deletion_timeout_seconds = 1.5
 visible = false
 offset_right = 150.0
 offset_bottom = 200.0
-text = "Content !"
 wrap_mode = 1
 
 [node name="ResizeHandle" type="TextureButton" parent="."]
