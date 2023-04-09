@@ -1,12 +1,12 @@
 extends Node
 
 # a new pin is created at position "where"
-signal new_default_pin(current_zoom : Vector2)
+signal new_default_pin()
 
 # the background image changed dimensions : here are the new ones
 signal background_image_dimensions_changed(old_dim : Vector2, new_dim : Vector2)
 
-# a new background is here !
+# a new background is here and must be applied !
 signal changed_background_texture(new_texture : Texture2D)
 
 # a pin is currently being hovered by the mouse.

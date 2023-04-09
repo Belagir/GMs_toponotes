@@ -35,7 +35,7 @@ script/source = "extends State
 
 func on_enter(args : Dictionary) -> void:
 	super(args)
-	pass
+	owner.set_visibility_excerpt_label(true)
 
 
 func on_input(_event : InputEvent) -> void:
@@ -44,7 +44,7 @@ func on_input(_event : InputEvent) -> void:
 
 func on_leave() -> void:
 	super()
-	pass
+	owner.set_visibility_excerpt_label(false)
 "
 
 [sub_resource type="GDScript" id="GDScript_t53as"]
@@ -203,6 +203,15 @@ one_shot = true
 visible = false
 offset_right = 40.0
 offset_bottom = 23.0
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+use_top_left = true
+
+[node name="ExcerptLabel" type="Label" parent="CenterContainer"]
+visible = false
+layout_mode = 2
 
 [node name="PinBody" type="Area2D" parent="."]
 z_index = -1

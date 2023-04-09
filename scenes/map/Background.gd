@@ -4,6 +4,7 @@ extends Sprite2D
 # - new_default_pin -> will add a pin at the mouse's position
 # - changed_background_texture -> will change the texture
 # - request_map_wipe -> to roll the map back to a blank state
+# - zoom_level_changed -> to pass the zoom level to new pins
 #
 # Global events sent :
 # - changed_background_texture -> orders itself to change texture (in a load save scenario)
@@ -14,10 +15,14 @@ extends Sprite2D
 const PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 
 
+var _zoom_level := Vector2(1, 1)
+
+
 func _ready() -> void:
 	GlobalEvents.new_default_pin.connect(_add_default_pin)
 	GlobalEvents.changed_background_texture.connect(_on_changed_image)
 	GlobalEvents.request_map_wipe.connect(reset_map)
+	GlobalEvents.zoom_level_changed.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
@@ -112,7 +117,7 @@ func save_node_to(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 
 
 # add a default, blank pin where the mouse is, provided the pin can be placed on the current texture
-func _add_default_pin(current_zoom_level : Vector2) -> void:
+func _add_default_pin() -> void:
 	var where := self.get_global_mouse_position()
 	
 	# verifications for valid positionning
@@ -125,8 +130,8 @@ func _add_default_pin(current_zoom_level : Vector2) -> void:
 	var new_pin : Pin = PinScene.instantiate() as Pin
 	self.add_child(new_pin)
 	new_pin.move_to(where)
-	new_pin.change_note_scale(current_zoom_level)
-	GlobalEvents.map_got_a_change.emit()	
+	new_pin.change_note_scale(_zoom_level)
+	GlobalEvents.map_got_a_change.emit()
 
 
 # appends the pin's binary data to the provided buffer.
@@ -152,6 +157,7 @@ func _decode_all_pins_from(version : int, buffer : PackedByteArray, nb_pins : in
 		new_pin = PinScene.instantiate() as Pin
 		self.add_child(new_pin)
 		size_pin_data = new_pin.from_byte_array(version, buffer.slice(byte_offset))
+		new_pin.change_note_scale(_zoom_level)
 		byte_offset += size_pin_data
 
 

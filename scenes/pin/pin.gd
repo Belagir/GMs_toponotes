@@ -10,6 +10,10 @@ extends Node2D
 # - pin_hover -> notify the rest of the program that this pin is hovered by the mouse
 # - pin_deselected -> this pin was selected and some input was sent to deselect it
 
+
+const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
+
+
 @export_group("pin sizing")
 @export_range(10, 1000, 1) var min_pin_size_px : int = 60
 @export_range(10, 1000, 1) var max_pin_size_px : int = 600
@@ -27,6 +31,8 @@ extends Node2D
 @onready var _delete_button := $DeleteButton as TextureButton
 @onready var _delete_timer := $DeleteButton/DeletionTimer as Timer
 @onready var _size_label := $SizeLabel as Label
+@onready var _excerpt_container := $CenterContainer as CenterContainer
+@onready var _excerpt_label := $CenterContainer/ExcerptLabel as Label
 
 
 # this is the "original position" of the pin, updated everytime it is moved directly by the user.
@@ -42,7 +48,7 @@ func _ready() -> void:
 	_resize_handle.button_down.connect(_state_machine.transition_to.bind("ResizeActivated"))
 	_delete_button.button_down.connect(_state_machine.transition_to.bind("DeletingInitiated"))
 	
-	_note_edit.text_changed.connect(func(): GlobalEvents.map_got_a_change.emit())
+	_note_edit.text_changed.connect(_note_text_changed)
 	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
@@ -55,6 +61,8 @@ func _ready() -> void:
 func change_note_scale(new_zoom_level : Vector2) -> void:
 	_note_edit.scale.x = 1.0 / new_zoom_level.x
 	_note_edit.scale.y = 1.0 / new_zoom_level.y
+	_excerpt_container.scale.x = 1.0 / new_zoom_level.x
+	_excerpt_container.scale.y = 1.0 / new_zoom_level.y
 
 
 # quick and dirty deletion timer access
@@ -63,6 +71,8 @@ func deletion_timer() -> Timer:
 
 
 func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
+	var text_buffer : PackedByteArray = []
+	
 	buffer.resize(20)
 	
 	# position
@@ -72,8 +82,9 @@ func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	buffer.encode_float(8, self.size().x)
 	buffer.encode_float(12, self.size().y)
 	# note text
-	buffer.encode_u32(16, self._note_edit.text.length())
-	buffer.append_array(self._note_edit.text.to_utf8_buffer())
+	text_buffer = self._note_edit.text.to_utf8_buffer()
+	buffer.encode_u32(16, len(text_buffer))
+	buffer.append_array(text_buffer)
 	
 	return SaveFile.SAVEFILE_ERROR.NONE
 
@@ -100,11 +111,11 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	decoded_info["note length"] = buffer.decode_u32(byte_offset)
 	byte_offset += 4
 	decoded_info["note content"] = buffer.slice(byte_offset, byte_offset + decoded_info["note length"]).get_string_from_utf8()
-	byte_offset += (decoded_info["note content"] as String).length()
+	byte_offset += decoded_info["note length"]
 	
 	self.move_to(Vector2(decoded_info["pos x"], decoded_info["pos y"]))
 	self.to_size(Vector2(decoded_info["size x"], decoded_info["size y"]))
-	self._note_edit.text = decoded_info["note content"]
+	self.set_note_text(decoded_info["note content"])
 	self._state_machine.transition_to("Ignored")
 	
 	return byte_offset
@@ -115,6 +126,11 @@ func move_to(target : Vector2) -> void:
 	self.position = target
 	_original_position = self.position
 	GlobalEvents.map_got_a_change.emit()
+
+
+func set_note_text(text : String) -> void:
+	_note_edit.text = text
+	_note_edit.text_changed.emit()
 
 
 # toggle visibility of the pin's note
@@ -142,6 +158,12 @@ func set_visibility_size_label(seen : bool) -> void:
 	else:
 		_size_label.hide()
 
+
+func set_visibility_excerpt_label(seen : bool) -> void:
+	if seen:
+		_excerpt_label.show()
+	else:
+		_excerpt_label.hide()
 
 # return the diameter, in pixels, of the pin.
 func size() -> Vector2:
@@ -177,10 +199,16 @@ func to_size(new_pix_size : Vector2) -> void:
 	real_size =  my_pix_size.x * _pin_body.scale
 	
 	_note_edit.position.x = real_size.x / 1.5
+	
 	_resize_handle.position = (real_size / 2) - (_resize_handle.size * _resize_handle.scale)
+	
 	_size_label.position = (real_size / 2)
 	_size_label.text = "( %d px x %d px )" % [new_pix_size.x, new_pix_size.y]
+	
+	_excerpt_container.position.y = real_size.y * 0.6
+	
 	_delete_button.position.y = (-real_size.y / 2) - (_delete_button.size.y * _delete_button.scale.y)
+	
 	GlobalEvents.map_got_a_change.emit()
 
 
@@ -199,3 +227,13 @@ func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 func _pin_hovered(entered : bool) -> void:
 	GlobalEvents.pin_hover.emit(self, entered)
 
+
+func _note_text_changed() -> void:
+	GlobalEvents.map_got_a_change.emit()
+	if (_note_edit.text.find("\n") < DISPLAYED_CHARACTERS_HIGHLIGHTED) and _note_edit.text.find("\n") != -1:
+		_excerpt_label.text = _note_edit.text.get_slice("\n", 0)
+	else:
+		_excerpt_label.text = _note_edit.text.left(DISPLAYED_CHARACTERS_HIGHLIGHTED)
+	
+	_excerpt_label.text = _excerpt_label.text.strip_edges()
+	_excerpt_label.text += "…" if _note_edit.text.length() > DISPLAYED_CHARACTERS_HIGHLIGHTED else ""

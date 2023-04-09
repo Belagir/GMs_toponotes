@@ -19,3 +19,5 @@ func _update_pin_hovered(pin : Pin, entered : bool) -> void:
 	_pin_hovered = pin if entered else null
 	if _pin_hovered and _pin_hovered.state() == "Ignored":
 		_pin_hovered.to_state("Highlighted")
+	elif not _pin_hovered and pin.state() == "Highlighted":
+		pin.to_state("Ignored")

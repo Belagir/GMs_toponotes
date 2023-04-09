@@ -52,7 +52,7 @@ func on_input(event : InputEvent) -> void:
 			_flag_pins_were_deselected = false
 			GlobalEvents.pin_request_all_deselection.emit()
 			if not _flag_pins_were_deselected:
-				GlobalEvents.new_default_pin.emit(owner.zoom)
+				GlobalEvents.new_default_pin.emit()
 		_owner_state_machine.transition_to(\"CursorInactive\", { \"pin hovered\" = _pin_hovered })
 
 

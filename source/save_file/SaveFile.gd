@@ -19,7 +19,7 @@ enum SAVEFILE_ERROR { NONE, MISHAPS, FATAL }
 #
 # The save file begins with a header :
 #    4 bytes : version of the program as u32
-#    4 bytes : number of save blocks as u32
+#    + 4 bytes : number of save blocks as u32
 #
 # Then, the save file is a succession of save blocks. A save block has its own header (the 'block 
 # header') and some binary content (the 'save data').
@@ -48,6 +48,7 @@ class SaveHeader:
 		self.program_version = save_file.get_32()
 		self.nb_blocks = save_file.get_32()
 
+
 # save block header non-representative data
 class SaveBlock:
 	var associated_node : StringName
@@ -71,6 +72,7 @@ class SaveBlock:
 		save_block_header["data length"] = save_file.get_32()
 		self.data = save_file.get_buffer(save_block_header["data length"])
 		
+
 
 # save the program's persistent nodes to a file represented by *path*. If the path is invalid, or 
 # that the file could not be opened for any reason, the save process is aborted.
