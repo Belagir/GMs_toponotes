@@ -21,7 +21,7 @@ var _keyword_translation := { \
 }
 
 
-var _keyword_stack : Array[MD_KEYWORD] = []
+var _keyword_stack : Array[String] = []
 var _markdown_automaton : BareStateMachine
 
 
@@ -64,11 +64,9 @@ class StateIncrementEmphasis extends MarkdownDecoderState:
 	
 	func on_message(msg : String) -> Variant:
 		if (msg[0] != self.character) or (self.magnitude >= 3):
-			match self.magnitude:
-				1: owner_machine.transition_to("italics", { "character" = self.character })
-				2: owner_machine.transition_to("emphasis", { "character" = self.character })
-				_: owner_machine.transition_to("bold italics", { "character" = self.character })
+			owner_machine.transition_to("emphasis", { "character" = self.character, "keyword" = "".rpad(self.magnitude, self.character) })
 			return msg
+		
 		owner_machine.transition_to("increment emphasis", { "character" = self.character, "magnitude" = self.magnitude+1})
 		return msg.right(-1)
 
@@ -86,50 +84,24 @@ class StateOtherLetter extends MarkdownDecoderState:
 # --------------------------------------------------------------------------------------------------
 class StateEmphasis extends MarkdownDecoderState:
 	
-	func on_enter(_args : Dictionary) -> void:
-		if target_label._keywordstack_peek() == MD_KEYWORD.EMPHASIS:
+	func on_enter(args : Dictionary) -> void:
+		if target_label._keywordstack_peek() == args["keyword"]:
 			target_label._keywordstack_pop()
 			owner_machine.transition_to("empty")
 			return
-		target_label._keywordstack_push(MD_KEYWORD.EMPHASIS)
+		target_label._keywordstack_push(args["keyword"])
 	
-
-
-# --------------------------------------------------------------------------------------------------
-class StateItalics extends MarkdownDecoderState:
-	
-	func on_enter(_args : Dictionary) -> void:
-		if target_label._keywordstack_peek() == MD_KEYWORD.ITALICS:
-			target_label._keywordstack_pop()
-			owner_machine.transition_to("empty")
-			return
-		target_label._keywordstack_push(MD_KEYWORD.ITALICS)
-	
-
-
-
-# --------------------------------------------------------------------------------------------------
-class StateBoldItalics extends MarkdownDecoderState:
-	
-	func on_enter(_args : Dictionary) -> void:
-		if target_label._keywordstack_peek() == MD_KEYWORD.BOLD_ITALICS:
-			target_label._keywordstack_pop()
-			owner_machine.transition_to("empty")
-			return
-		target_label._keywordstack_push(MD_KEYWORD.BOLD_ITALICS)
-	
-
 
 
 # --------------------------------------------------------------------------------------------------
 class StateCodeSpan extends MarkdownDecoderState:
 	
 	func on_enter(_args : Dictionary) -> void:
-		if target_label._keywordstack_peek() == MD_KEYWORD.CODE_SPAN:
+		if target_label._keywordstack_peek() == "`":
 			target_label._keywordstack_pop()
 			owner_machine.transition_to("empty")
 			return
-		target_label._keywordstack_push(MD_KEYWORD.CODE_SPAN)
+		target_label._keywordstack_push("`")
 	
 	func on_message(msg : String) -> Variant:
 		owner_machine.transition_to("format deactivated")
@@ -153,8 +125,6 @@ func _ready() -> void:
 	_markdown_automaton.set_state("other letter", StateOtherLetter.new(self))
 	_markdown_automaton.set_state("increment emphasis", StateIncrementEmphasis.new(self))
 	_markdown_automaton.set_state("emphasis", StateEmphasis.new(self))
-	_markdown_automaton.set_state("italics", StateItalics.new(self))
-	_markdown_automaton.set_state("bold italics", StateBoldItalics.new(self))
 	_markdown_automaton.set_state("code span", StateCodeSpan.new(self))
 	_markdown_automaton.set_state("format deactivated", StateFormatDeactivated.new(self))
 
@@ -177,9 +147,9 @@ func md_append_text(more_md_text : String) -> void:
 		self._keywordstack_pop()
 
 
-func _keywordstack_push(keyword : MD_KEYWORD) -> void:
+func _keywordstack_push(keyword : String) -> void:
 	_keyword_stack.push_back(keyword)
-	_keyword_translation[keyword].call(self as RichTextLabel)
+	_keyword_translation[_md_keyword_str[keyword]].call(self as RichTextLabel)
 
 
 func _keywordstack_peek() -> Variant:
@@ -188,6 +158,6 @@ func _keywordstack_peek() -> Variant:
 	return _keyword_stack.back()
 
 
-func _keywordstack_pop() -> MD_KEYWORD:
+func _keywordstack_pop() -> String:
 	self.pop()
 	return _keyword_stack.pop_back()
