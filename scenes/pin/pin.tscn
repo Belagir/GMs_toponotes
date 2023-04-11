@@ -177,13 +177,6 @@ script = SubResource("GDScript_wlfs2")
 script = SubResource("GDScript_tkdst")
 deletion_timeout_seconds = 1.5
 
-[node name="NoteTextEdit_old" type="CodeEdit" parent="."]
-process_mode = 4
-visible = false
-offset_right = 150.0
-offset_bottom = 200.0
-wrap_mode = 1
-
 [node name="NoteTextEdit" parent="." instance=ExtResource("3_33ski")]
 visible = false
 

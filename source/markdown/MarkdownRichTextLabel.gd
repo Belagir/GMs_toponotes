@@ -11,8 +11,8 @@ const _md_keyword_str := { \
 		"___" : MD_KEYWORD.BOLD_ITALICS, \
 		"***" : MD_KEYWORD.BOLD_ITALICS, \
 		"`"   : MD_KEYWORD.CODE_SPAN, \
-		
 }
+
 var _keyword_translation := { \
 		MD_KEYWORD.ITALICS       : func(rich_label : RichTextLabel): rich_label.push_italics(), \
 		MD_KEYWORD.EMPHASIS      : func(rich_label : RichTextLabel): rich_label.push_bold(), \
@@ -28,9 +28,9 @@ var _markdown_automaton : BareStateMachine
 class MarkdownDecoderState:
 	var owner_machine : BareStateMachine
 	var target_label : MarkdownRichTextLabel
-		
-	func on_message(msg : String) -> Variant:
-		owner_machine.transition_to("empty")
+	
+	func on_message(msg : String) -> String:
+		owner_machine.transition_to("anything")
 		return msg
 	
 	func _init(target : MarkdownRichTextLabel) -> void:
@@ -38,9 +38,9 @@ class MarkdownDecoderState:
 
 
 # --------------------------------------------------------------------------------------------------
-class StateEmpty extends MarkdownDecoderState:
+class StateAnything extends MarkdownDecoderState:
 	
-	func on_message(msg : String) -> Variant:
+	func on_message(msg : String) -> String:
 		var letter : String = msg[0]
 		
 		if (letter  == "*") or (letter == "_"):
@@ -48,6 +48,9 @@ class StateEmpty extends MarkdownDecoderState:
 			return msg.right(-1)
 		elif (letter == "`"):
 			owner_machine.transition_to("code span")
+			return msg.right(-1)
+		elif (letter == "\\"):
+			owner_machine.transition_to("escaping")
 			return msg.right(-1)
 		owner_machine.transition_to("other letter")
 		return msg
@@ -62,7 +65,7 @@ class StateIncrementEmphasis extends MarkdownDecoderState:
 		self.character = args["character"]
 		self.magnitude = args["magnitude"]
 	
-	func on_message(msg : String) -> Variant:
+	func on_message(msg : String) -> String:
 		if (msg[0] != self.character) or (self.magnitude >= 3):
 			owner_machine.transition_to("emphasis", { "character" = self.character, "keyword" = "".rpad(self.magnitude, self.character) })
 			return msg
@@ -74,11 +77,18 @@ class StateIncrementEmphasis extends MarkdownDecoderState:
 # --------------------------------------------------------------------------------------------------
 class StateOtherLetter extends MarkdownDecoderState:
 	
-	func on_message(msg : String) -> Variant:
+	func on_message(msg : String) -> String:
 		target_label.append_text(msg[0])
-		owner_machine.transition_to("empty")
+		owner_machine.transition_to("anything")
 		return msg.right(-1)
+
+
+# --------------------------------------------------------------------------------------------------
+class StateEscaping extends MarkdownDecoderState:
 	
+	func on_message(msg : String) -> String:
+		owner_machine.transition_to("other letter")
+		return msg
 
 
 # --------------------------------------------------------------------------------------------------
@@ -87,7 +97,7 @@ class StateEmphasis extends MarkdownDecoderState:
 	func on_enter(args : Dictionary) -> void:
 		if target_label._keywordstack_peek() == args["keyword"]:
 			target_label._keywordstack_pop()
-			owner_machine.transition_to("empty")
+			owner_machine.transition_to("anything")
 			return
 		target_label._keywordstack_push(args["keyword"])
 	
@@ -99,11 +109,11 @@ class StateCodeSpan extends MarkdownDecoderState:
 	func on_enter(_args : Dictionary) -> void:
 		if target_label._keywordstack_peek() == "`":
 			target_label._keywordstack_pop()
-			owner_machine.transition_to("empty")
+			owner_machine.transition_to("anything")
 			return
 		target_label._keywordstack_push("`")
 	
-	func on_message(msg : String) -> Variant:
+	func on_message(msg : String) -> String:
 		owner_machine.transition_to("format deactivated")
 		return msg
 
@@ -111,9 +121,9 @@ class StateCodeSpan extends MarkdownDecoderState:
 # --------------------------------------------------------------------------------------------------
 class StateFormatDeactivated extends MarkdownDecoderState:
 	
-	func on_message(msg : String) -> Variant:
+	func on_message(msg : String) -> String:
 		if msg[0] == "`":
-			owner_machine.transition_to("empty")
+			owner_machine.transition_to("anything")
 			return msg.right(-1)
 		target_label.append_text(msg[0])
 		return msg.right(-1)
@@ -121,8 +131,9 @@ class StateFormatDeactivated extends MarkdownDecoderState:
 
 func _ready() -> void:
 	_markdown_automaton = BareStateMachine.new()
-	_markdown_automaton.set_state("empty", StateEmpty.new(self))
+	_markdown_automaton.set_state("anything", StateAnything.new(self))
 	_markdown_automaton.set_state("other letter", StateOtherLetter.new(self))
+	_markdown_automaton.set_state("escaping", StateEscaping.new(self))
 	_markdown_automaton.set_state("increment emphasis", StateIncrementEmphasis.new(self))
 	_markdown_automaton.set_state("emphasis", StateEmphasis.new(self))
 	_markdown_automaton.set_state("code span", StateCodeSpan.new(self))
@@ -138,7 +149,7 @@ func md_set_whole_text(new_md_text : String) -> void:
 
 # append some markdown text at the end of the internal buffer.
 func md_append_text(more_md_text : String) -> void:
-	_markdown_automaton.jumpstart("empty")
+	_markdown_automaton.jumpstart("anything")
 	
 	while more_md_text.length() > 0:
 		more_md_text = _markdown_automaton.send_message(more_md_text)
