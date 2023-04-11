@@ -22,7 +22,7 @@ func send_message(msg : Variant) -> Variant:
 	return _current_state.on_message.call(msg)
 
 
-func transition_to(identifier : String, args : Dictionary) -> void:
+func transition_to(identifier : String, args : Dictionary = {}) -> void:
 	if not _states.has(identifier):
 		return
 	

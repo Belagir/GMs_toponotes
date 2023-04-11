@@ -15,10 +15,3 @@ script = ExtResource("2_lndfx")
 [node name="Edition" type="TextEdit" parent="."]
 visible = false
 layout_mode = 2
-
-[node name="RichTextLabel" type="RichTextLabel" parent="."]
-visible = false
-layout_mode = 2
-bbcode_enabled = true
-text = "[b]bold[/b]
-[i]italics[/i]"
