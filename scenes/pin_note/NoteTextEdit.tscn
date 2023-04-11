@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://buug8fvw8gvvm"]
+
+[ext_resource type="Script" path="res://scenes/pin_note/NoteTextEdit.gd" id="1_ju6s8"]
+[ext_resource type="Script" path="res://source/markdown/MarkdownRichTextLabel.gd" id="2_lndfx"]
+
+[node name="NoteTextEdit" type="TabContainer"]
+offset_right = 300.0
+offset_bottom = 400.0
+script = ExtResource("1_ju6s8")
+
+[node name="Note" type="RichTextLabel" parent="."]
+layout_mode = 2
+script = ExtResource("2_lndfx")
+
+[node name="Edition" type="TextEdit" parent="."]
+visible = false
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+visible = false
+layout_mode = 2
+bbcode_enabled = true
+text = "[b]bold[/b]
+[i]italics[/i]"

@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://cdm6yjyukobxn"]
+[gd_scene load_steps=7 format=3 uid="uid://cdl5h235jfx4x"]
 
 [ext_resource type="Script" path="res://scenes/user_camera/UserCamera.gd" id="1_7isvh"]
-[ext_resource type="Script" path="res://source/state_machine/StateMachine.gd" id="2_ne6et"]
+[ext_resource type="Script" path="res://source/node_state_machine/StateMachine.gd" id="2_ax8ya"]
 
 [sub_resource type="GDScript" id="GDScript_64gcp"]
 resource_name = "CursorInactive"
@@ -132,7 +132,7 @@ func on_leave() -> void:
 script = ExtResource("1_7isvh")
 
 [node name="StateMachineClickActions" type="Node" parent="."]
-script = ExtResource("2_ne6et")
+script = ExtResource("2_ax8ya")
 initial_state = NodePath("CursorInactive")
 
 [node name="CursorInactive" type="Node" parent="StateMachineClickActions"]

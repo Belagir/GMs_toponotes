@@ -1,6 +1,7 @@
 class_name StateMachine
 extends Node
 
+
 @export var initial_state : NodePath = NodePath()
 @onready var state : State = get_node(initial_state) : get = _get_state
 

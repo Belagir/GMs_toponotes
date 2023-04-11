@@ -1,11 +1,11 @@
-[gd_scene load_steps=14 format=3 uid="uid://bf7mad2d768m1"]
+[gd_scene load_steps=14 format=3 uid="uid://886gelmm7cog"]
 
 [ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
+[ext_resource type="Script" path="res://source/node_state_machine/StateMachine.gd" id="2_we7sp"]
 [ext_resource type="Texture2D" uid="uid://cuv8vetjgvjv6" path="res://images/pin/base.png" id="2_xkso3"]
 [ext_resource type="Texture2D" uid="uid://xmh55qwqom3m" path="res://images/pin/pin_ring_mk1.png" id="2_y1lr7"]
 [ext_resource type="Texture2D" uid="uid://diule3m8nieao" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
 [ext_resource type="Texture2D" uid="uid://b36m802rwabyd" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
-[ext_resource type="Script" path="res://source/state_machine/StateMachine.gd" id="4_unch0"]
 
 [sub_resource type="GDScript" id="GDScript_1cw3p"]
 resource_name = "Ignored"
@@ -154,7 +154,7 @@ radius = 128.0
 script = ExtResource("1_e4dum")
 
 [node name="StateMachine" type="Node" parent="."]
-script = ExtResource("4_unch0")
+script = ExtResource("2_we7sp")
 initial_state = NodePath("Ignored")
 
 [node name="Ignored" type="Node" parent="StateMachine"]
@@ -176,7 +176,7 @@ script = SubResource("GDScript_wlfs2")
 script = SubResource("GDScript_tkdst")
 deletion_timeout_seconds = 1.5
 
-[node name="NoteTextEdit" type="TextEdit" parent="."]
+[node name="NoteTextEdit" type="CodeEdit" parent="."]
 visible = false
 offset_right = 150.0
 offset_bottom = 200.0
