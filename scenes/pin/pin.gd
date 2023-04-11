@@ -25,7 +25,8 @@ const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 @onready var _pin_body := $PinBody as Area2D
 @onready var _pin_body_shape := $PinBody/CollisionShape2DBody as CollisionShape2D
 @onready var _pin_body_sprite := $PinBody/SpriteBase as Sprite2D
-@onready var _note_edit := $NoteTextEdit as TextEdit
+@onready var _note_edit := $NoteTextEdit as NoteTextEdit
+#@onready var _note_edit := $NoteTextEdit as TextEdit
 @onready var _state_machine := $StateMachine as StateMachine
 @onready var _resize_handle := $ResizeHandle as TextureButton
 @onready var _delete_button := $DeleteButton as TextureButton
@@ -247,10 +248,12 @@ func _pin_hovered(entered : bool) -> void:
 # when the note text changes, the highlight excerpt must be updated
 func _note_text_changed() -> void:
 	GlobalEvents.map_got_a_change.emit()
-	if (_note_edit.text.find("\n") < DISPLAYED_CHARACTERS_HIGHLIGHTED) and _note_edit.text.find("\n") != -1:
-		_excerpt_label.text = _note_edit.text.get_slice("\n", 0)
+	var target_text : String = _note_edit.rich_text
+	
+	if (target_text.find("\n") < DISPLAYED_CHARACTERS_HIGHLIGHTED) and target_text.find("\n") != -1:
+		_excerpt_label.text = target_text.get_slice("\n", 0)
 	else:
-		_excerpt_label.text = _note_edit.text.left(DISPLAYED_CHARACTERS_HIGHLIGHTED)
+		_excerpt_label.text = target_text.left(DISPLAYED_CHARACTERS_HIGHLIGHTED)
 	
 	_excerpt_label.text = _excerpt_label.text.strip_edges()
-	_excerpt_label.text += "…" if _note_edit.text.length() > DISPLAYED_CHARACTERS_HIGHLIGHTED else ""
+	_excerpt_label.text += "…" if target_text.length() > DISPLAYED_CHARACTERS_HIGHLIGHTED else ""
