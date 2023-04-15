@@ -58,7 +58,7 @@ func _ready() -> void:
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
-	GlobalEvents.zoom_level_changed.connect(change_note_scale)
+	GlobalEvents.zoom_level_changed.connect(change_control_nodes_scale)
 	GlobalEvents.background_image_dimensions_changed.connect(_adapt_position_to_image_dim)
 	GlobalEvents.bring_pins_z_level_down.connect(_bring_down)
 	
@@ -66,11 +66,11 @@ func _ready() -> void:
 
 
 # change the scale of the NoteEdit child
-func change_note_scale(new_zoom_level : Vector2) -> void:
-	_note_edit.scale.x = 1.0 / new_zoom_level.x
-	_note_edit.scale.y = 1.0 / new_zoom_level.y
-	_excerpt_container.scale.x = 1.0 / new_zoom_level.x
-	_excerpt_container.scale.y = 1.0 / new_zoom_level.y
+func change_control_nodes_scale(new_zoom_level : Vector2) -> void:
+	for child in self.get_children():
+		if child.is_in_group("unscaling"):
+			child.scale.x = 1.0 / new_zoom_level.x
+			child.scale.y = 1.0 / new_zoom_level.y
 
 
 # quick and dirty deletion timer access

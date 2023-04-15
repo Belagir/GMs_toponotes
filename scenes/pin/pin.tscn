@@ -177,7 +177,7 @@ script = SubResource("GDScript_wlfs2")
 script = SubResource("GDScript_tkdst")
 deletion_timeout_seconds = 1.5
 
-[node name="NoteTextEdit" parent="." instance=ExtResource("3_33ski")]
+[node name="NoteTextEdit" parent="." groups=["unscaling"] instance=ExtResource("3_33ski")]
 visible = false
 
 [node name="ResizeHandle" type="TextureButton" parent="."]
@@ -198,12 +198,12 @@ texture_normal = ExtResource("4_5w6ha")
 [node name="DeletionTimer" type="Timer" parent="DeleteButton"]
 one_shot = true
 
-[node name="SizeLabel" type="Label" parent="."]
+[node name="SizeLabel" type="Label" parent="." groups=["unscaling"]]
 visible = false
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." groups=["unscaling"]]
 size_flags_horizontal = 3
 size_flags_vertical = 3
 use_top_left = true
@@ -212,7 +212,7 @@ use_top_left = true
 visible = false
 layout_mode = 2
 
-[node name="PinIconSelector" parent="." instance=ExtResource("6_narny")]
+[node name="PinIconSelector" parent="." groups=["unscaling"] instance=ExtResource("6_narny")]
 visible = false
 
 [node name="PinBody" type="Area2D" parent="."]

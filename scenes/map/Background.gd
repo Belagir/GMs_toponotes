@@ -186,7 +186,7 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 func _add_pin() -> Pin:
 	var new_pin := PinScene.instantiate() as Pin
 	self.add_child(new_pin)
-	new_pin.change_note_scale(_zoom_level)
+	new_pin.change_control_nodes_scale(_zoom_level)
 	_max_pin_z_level += 1
 	new_pin.z_index = _max_pin_z_level
 	return new_pin
