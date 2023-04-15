@@ -24,9 +24,8 @@ const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 # pin components for ease of (and typed) access
 @onready var _pin_body := $PinBody as Area2D
 @onready var _pin_body_shape := $PinBody/CollisionShape2DBody as CollisionShape2D
-@onready var _pin_body_sprite := $PinBody/SpriteBase as Sprite2D
+@onready var _pin_appearance := $PinBody/PinAppearance as PinAppearance
 @onready var _note_edit := $NoteTextEdit as NoteTextEdit
-#@onready var _note_edit := $NoteTextEdit as TextEdit
 @onready var _state_machine := $StateMachine as StateMachine
 @onready var _resize_handle := $ResizeHandle as TextureButton
 @onready var _delete_button := $DeleteButton as TextureButton
@@ -34,15 +33,17 @@ const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 @onready var _size_label := $SizeLabel as Label
 @onready var _excerpt_container := $CenterContainer as CenterContainer
 @onready var _excerpt_label := $CenterContainer/ExcerptLabel as Label
+@onready var _icon_selector := $PinIconSelector as PinIconSelector
 
 
 # this is the "original position" of the pin, updated everytime it is moved directly by the user.
 # it can be used to adapt the position of the pin with no losses in the event of a background image change. 
 var _original_position : Vector2
 
+var _icon_texture_index : int = 0
 
 func _ready() -> void:
-	(_pin_body_shape.shape as CircleShape2D).radius = (_pin_body_sprite.texture as Texture2D).get_size().x / 2
+	(_pin_body_shape.shape as CircleShape2D).radius = _pin_appearance.get_size_px().x / 2
 	_pin_body.mouse_entered.connect(_pin_hovered.bind(true))
 	_pin_body.mouse_exited.connect(_pin_hovered.bind(false))
 	
@@ -50,6 +51,9 @@ func _ready() -> void:
 	_delete_button.button_down.connect(_state_machine.transition_to.bind("DeletingInitiated"))
 	
 	_note_edit.text_changed.connect(_note_text_changed)
+	
+	_icon_selector.selected_new_icon.connect(_change_appearance)
+	_icon_selector.switch_to(_icon_texture_index)
 	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
@@ -77,7 +81,7 @@ func deletion_timer() -> Timer:
 func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	var text_buffer : PackedByteArray = []
 	
-	buffer.resize(24)
+	buffer.resize(28)
 	
 	# position
 	buffer.encode_float(0, self.position.x)
@@ -87,9 +91,11 @@ func to_byte_array(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	buffer.encode_float(12, self.size().y)
 	# z index
 	buffer.encode_u32(16, self.z_index)
+	# icon texture index
+	buffer.encode_u32(20, self._icon_texture_index)
 	# note text
 	text_buffer = self._note_edit.text.to_utf8_buffer()
-	buffer.encode_u32(20, len(text_buffer))
+	buffer.encode_u32(24, len(text_buffer))
 	buffer.append_array(text_buffer)
 	
 	return SaveFile.SAVEFILE_ERROR.NONE
@@ -117,6 +123,10 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	decoded_info["z index"] = buffer.decode_u32(byte_offset)
 	byte_offset += 4
 	
+	# fetch icon texture index
+	decoded_info["icon texture"] = buffer.decode_u32(byte_offset)
+	byte_offset += 4
+	
 	# fetch note text	
 	decoded_info["note length"] = buffer.decode_u32(byte_offset)
 	byte_offset += 4
@@ -126,6 +136,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	self.move_to(Vector2(decoded_info["pos x"], decoded_info["pos y"]))
 	self.to_size(Vector2(decoded_info["size x"], decoded_info["size y"]))
 	self.z_index = decoded_info["z index"]
+	_icon_selector.switch_to(decoded_info["icon texture"])
 	self.set_note_text(decoded_info["note content"])
 	self._state_machine.transition_to("Ignored")
 	
@@ -157,9 +168,11 @@ func set_visibility_config_things(seen : bool) -> void:
 	if seen:
 		_resize_handle.show()
 		_delete_button.show()
+		_icon_selector.show()
 	else:
 		_resize_handle.hide()
 		_delete_button.hide()
+		_icon_selector.hide()
 
 
 # toggle visibility of the pin's size label
@@ -220,6 +233,8 @@ func to_size(new_pix_size : Vector2) -> void:
 	
 	_delete_button.position.y = (-real_size.y / 2) - (_delete_button.size.y * _delete_button.scale.y)
 	
+	_icon_selector.position.x = real_size.x / 1.5
+	
 	GlobalEvents.map_got_a_change.emit()
 
 
@@ -231,6 +246,13 @@ func to_state(new_state : StringName) -> void:
 # change the node's postion to match the new ratio between the two sizes
 func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 	self.position = self.position * (new_dim / old_dim)
+	GlobalEvents.map_got_a_change.emit()
+
+
+# change the appearance of the pin
+func _change_appearance(apparel : Texture, new_index : int) -> void:
+	_pin_appearance.icon_texture = apparel
+	_icon_texture_index = new_index
 	GlobalEvents.map_got_a_change.emit()
 
 

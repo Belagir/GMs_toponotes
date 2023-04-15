@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3 uid="uid://caw4ly5q41ytr"]
+
+[ext_resource type="Script" path="res://scenes/pin_icon_selector/PinIconSelector.gd" id="1_jriao"]
+[ext_resource type="Texture2D" uid="uid://q1aeyl42l4lg" path="res://images/pin/pins_icons/notes.png" id="2_4cfrm"]
+[ext_resource type="Texture2D" uid="uid://cnu0pbxpif37t" path="res://images/pin/pins_icons/elipsis.png" id="3_wmk7u"]
+[ext_resource type="Texture2D" uid="uid://i7qe42o0ph4j" path="res://images/pin/pins_icons/exclamation_mark.png" id="4_hwwsh"]
+[ext_resource type="Texture2D" uid="uid://d4fyxl6otlmnn" path="res://images/pin/pins_icons/question_mark.png" id="5_nlpwj"]
+[ext_resource type="Texture2D" uid="uid://bgd64h0rkykdf" path="res://images/pin/pins_icons/skull.png" id="6_v13kr"]
+
+[node name="PinIconSelector" type="HBoxContainer"]
+offset_right = 180.0
+offset_bottom = 64.0
+script = ExtResource("1_jriao")
+available_icons_textures = Array[Texture2D]([ExtResource("2_4cfrm"), ExtResource("3_wmk7u"), ExtResource("4_hwwsh"), ExtResource("5_nlpwj"), ExtResource("6_v13kr")])
+
+[node name="ButtonLeft" type="Button" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+text = "<"
+
+[node name="IconPreviewLeft" type="Control" parent="."]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="IconPreviewMain" type="Control" parent="."]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="IconPreviewRight" type="Control" parent="."]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="ButtonRight" type="Button" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+text = ">"
