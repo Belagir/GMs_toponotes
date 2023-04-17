@@ -2,6 +2,14 @@ class_name NoteTextEdit
 extends TabContainer
 
 
+## Allows the edition and display of a markdown-powered note.
+##
+## The node is composed of two tabs : a display tab and an edition tab.
+## The display tab is powered by a custom [MarkdownRichTextLabel].
+
+
+## Emitted when the displayed text has changed. THe display text only changes 
+## when the markdown text is set.
 signal text_changed()
 
 
@@ -9,6 +17,8 @@ signal text_changed()
 @onready var _note_display_control : MarkdownRichTextLabel = $Note as MarkdownRichTextLabel
 
 
+## This is the edited markdown text. This is translated to some BBCode rich text
+## when the property is set.
 var text : String :
 	get:
 		return _edition_control.text
@@ -17,9 +27,11 @@ var text : String :
 		self._actualize_rich_text()
 
 
+## This is the displayed, read-only, BBCode rich text. 
 var rich_text : String :
 	get:
 		return _note_display_control.get_parsed_text()
+	set(new_text): pass
 
 
 func _ready() -> void:

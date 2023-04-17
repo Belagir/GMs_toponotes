@@ -12,7 +12,7 @@ script/source = "extends State
 
 func on_enter(_args : Dictionary) -> void:
 	owner.toggle_controls_group(\"save_buttons\", false)
-	owner.toggle_controls_group(\"bg_image_path_dependant\", false)
+	owner.toggle_controls_group(\"bg_image_path_dependent\", false)
 	owner.toggle_controls_group(\"new_buttons\", false)
 	GlobalEvents.requested_change_of_background_image.connect(_on_bg_texture_changed)
 
@@ -32,7 +32,7 @@ script/source = "extends State
 
 func on_enter(_args : Dictionary) -> void:
 	owner.toggle_controls_group(\"save_buttons\", true)
-	owner.toggle_controls_group(\"bg_image_path_dependant\", true)
+	owner.toggle_controls_group(\"bg_image_path_dependent\", true)
 	owner.toggle_controls_group(\"new_buttons\", true)
 	GlobalEvents.requested_map_wipe.connect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
 
@@ -122,7 +122,7 @@ file_mode = 0
 access = 2
 filters = PackedStringArray("*.png", "*.jpg", "*.svg")
 
-[node name="RefreshButton" type="Button" parent="." groups=["bg_image_path_dependant"]]
+[node name="RefreshButton" type="Button" parent="." groups=["bg_image_path_dependent"]]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 0)
 layout_mode = 2

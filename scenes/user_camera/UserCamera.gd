@@ -1,25 +1,24 @@
+class_name UserCamera
 extends Camera2D
 
-# Global events listened to :
-# - changed_background_image_dimensions  -> to update the remembered background dimensions and limit 
-#   camera movement
-# - pin_deselected -> to make the distinction between a click to deselect pins or add a new one
-#
-# Global events sent :
-# - changed_zoom_level -> the zoom level changed
-# - requested_deselection_of_all_pins  -> deselect all pins
-# - new_default_pin -> add a pin
 
-# kind of zoom action
+## This node represents the user's camera. 
+## 
+## The camera can be dragged around and zoomed in and out. All mouse inputs 
+## not related to the UI goes through this node so the mouse's coordinates 
+## translation is straightforward.
+
+
+## Kind of zoom action. Not very exotic.
 enum ZOOM { IN, OUT }
 
 
 @export_group("zoom settings")
-# maximum zoom allowed
+## Maximum zoom allowed, in multiplier of the base zoom.
 @export_range(1, 4) var zoom_max : float = 3
-# minimum zoom allowed
+## Minimum zoom allowed, in multiplier of the base zoom.
 @export_range(0.1, 1) var zoom_min : float = 0.1
-# zoom multiplier each mouse wheel increment
+## Zoom multiplier each mouse wheel increment, in multiplier of the base zoom.
 @export_range(1, 2, 0.05) var zoom_step : float = 1.2
 @export_group("")
 
@@ -41,12 +40,14 @@ func _unhandled_input(event : InputEvent) -> void:
 		_change_zoom(ZOOM.OUT)
 
 
-# drags the camera along a mouse movement
+## Drags the camera along a mouse movement. The camera will try to stay in its 
+## most recent known map bounds.
 func drag_camera(mouse_motion : InputEventMouseMotion, cam_start : Vector2, drag_start : Vector2) -> void:
 	self.position = ((drag_start - mouse_motion.position) / self.zoom) + cam_start
 	self.position = keep_in_my_map(self.position)
 
 
+## Keep the camera in its known map bounds.
 func keep_in_my_map(coords : Vector2) -> Vector2:
 	coords.x = clamp(coords.x, 0.0, _map_dimensions.x)
 	coords.y = clamp(coords.y, 0.0, _map_dimensions.y)

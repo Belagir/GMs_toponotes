@@ -1,7 +1,12 @@
 class_name MarkdownRichTextLabel
 extends RichTextLabel
 
+## This is a rich text label that can accept markdown syntax.
+## 
+## Markdown text can be passed to the node with [method md_append_text] and
+## [method md_set_whole_text].
 
+## Curently supported markdown syntax.
 enum MD_KEYWORD { NONE, ITALICS, EMPHASIS, BOLD_ITALICS, CODE_SPAN }
 const _md_keyword_str := { \
 		"_"   : MD_KEYWORD.ITALICS, \
@@ -145,14 +150,14 @@ func _notification(what : int) -> void:
 		_markdown_automaton.free()
 
 
-# replace the buffer by the translation of the new text. Use this in the case of a deletion event 
-# that will mess with the internal buffer's BBCode stack
+## Replaces the buffer by the translation of the new text. Use this in the case of a deletion event 
+## that will mess with the internal buffer's BBCode stack.
 func md_set_whole_text(new_md_text : String) -> void:
 	self.clear()
 	self.md_append_text(new_md_text)
 
 
-# append some markdown text at the end of the internal buffer.
+## Append some markdown text at the end of the internal buffer.
 func md_append_text(more_md_text : String) -> void:
 	_markdown_automaton.jumpstart("anything")
 	

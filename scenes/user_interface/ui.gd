@@ -1,14 +1,11 @@
+class_name UI
 extends HBoxContainer
 
-# Global events listened to :
-# - requested_change_of_background_image -> to activate / deactivate save and load buttons
-# - changed_something_on_the_map -> to monitor the nexessity to ask for a save when some changes might get lost
-# 
-# Global events sent :
-# - requested_change_of_background_image -> request a texture change for the background
-# - requested_map_wipe -> request a new map
+## This node aggregates the user interface base controls.
+##
+## Ideally placed as a child of a [CanvasLayer].
 
-
+## Extension requested by the save and load functions for the save files.
 const PROGRAM_FILE_EXTENSION : String = "gmtpn"
 
 
@@ -38,6 +35,8 @@ func _ready() -> void:
 	GlobalEvents.changed_something_on_the_map.connect(_on_map_changed)
 
 
+## Toggle the visibility of an arbitrary control group. Available groups are :
+## "new_buttons", "save_buttons", "bg_image_path_dependent".
 func toggle_controls_group(group_name : String, controls_active : bool) -> void:
 	for node in self.get_tree().get_nodes_in_group(group_name):
 		node.disabled = not controls_active

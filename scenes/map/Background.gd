@@ -1,21 +1,19 @@
 extends Sprite2D
 
-# Global events listened to :
-# - new_default_pin -> will add a pin at the mouse's position
-# - requested_change_of_background_image -> will change the texture
-# - requested_map_wipe -> to roll the map back to a blank state
-# - changed_zoom_level -> to pass the zoom level to new pins
-#
-# Global events sent :
-# - requested_change_of_background_image -> orders itself to change texture (in a load save scenario)
-# - changed_background_image_dimensions -> notify the rest of the program that the background image
-#   changed dimensions
+## The Background class manages everything related to the background map.
+## 
+## The Background's main task is to create, manage and get rid of instances of 
+## the [Pin] class placed on it. 
+## The class can be saved to and loaded from a byte array. Those saves include
+## pins taht are child of the node.
 
 # pin scene for instanciation purposes
-const PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
+const _PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 
-
+# To remember the zoom level of the camera so pins can be created with  widgets
+# already scaled. 
 var _zoom_level := Vector2(1, 1)
+# To remember the last z-level affected to a pin.
 var _max_pin_z_level : int = 1
 
 
@@ -29,7 +27,11 @@ func _ready() -> void:
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
 
-# load the node's important information from a byte buffer
+## Loads the node's important information from a byte buffer.
+## Modifications read from the buffer are applied and will overide the node's 
+## current state.
+##     [br][code]version[/code] : version of the program the save originates from
+##     [br][code]buffer[/code] : byte buffer the saved data is read from
 func load_node_from(version : int, buffer : PackedByteArray) -> void:
 	var image : Image
 	var new_texture : Texture2D
@@ -76,15 +78,20 @@ func load_node_from(version : int, buffer : PackedByteArray) -> void:
 	self._decode_all_pins_from(version, buffer.slice(byte_offset), image_info["pins number"])
 
 
-# resets the map to a blank and empty state
+## Resets the map to a blank and empty state. 
+## This will delete : 
+## [br] - all the pins ;
+## [br] - the currently loaded texture.
 func reset_map() -> void:
+	self.texture.queue_free()
 	self.texture = null
 	for child in get_children():
 		if child is Pin: child.queue_free()
 	GlobalEvents.changed_something_on_the_map.emit()
 
-
-# save the node's important information to a byte buffer
+## Saves the node's important information to a byte buffer.
+##    [br][code]buffer[/code] : target buffer which content will be replaced with 
+## the node's save data
 func save_node_to(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
 	var image := self.texture.get_image()
 	var image_data := image.get_data()
@@ -132,6 +139,16 @@ func _add_default_pin(where : Vector2) -> void:
 	GlobalEvents.changed_something_on_the_map.emit()
 
 
+# Adds a pin.
+func _add_pin() -> Pin:
+	var new_pin := _PinScene.instantiate() as Pin
+	self.add_child(new_pin)
+	new_pin.change_control_nodes_scale(_zoom_level)
+	_max_pin_z_level += 1
+	new_pin.z_index = _max_pin_z_level
+	return new_pin
+
+
 # appends the pin's binary data to the provided buffer.
 func _append_encode_all_pins(buffer : PackedByteArray) -> void:
 	var children : Array[Node] = self.get_children()
@@ -145,6 +162,7 @@ func _append_encode_all_pins(buffer : PackedByteArray) -> void:
 			buffer.append_array(pin_buffer)
 
 
+# bring one pin all the way up and notify of this action the rest of the program 
 func _bring_pin_up(pin : Pin, _old_state: String, new_state : String) -> void:
 	if new_state == "Selected":
 		GlobalEvents.brought_pin_upward_z_level.emit(pin.z_index)
@@ -181,11 +199,3 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	self.texture = new_texture
 	GlobalEvents.changed_something_on_the_map.emit()
 
-
-func _add_pin() -> Pin:
-	var new_pin := PinScene.instantiate() as Pin
-	self.add_child(new_pin)
-	new_pin.change_control_nodes_scale(_zoom_level)
-	_max_pin_z_level += 1
-	new_pin.z_index = _max_pin_z_level
-	return new_pin

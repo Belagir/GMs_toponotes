@@ -1,6 +1,7 @@
 class_name PinHoveredAwareState
 extends State
 
+## This State class listens for pin hovered events.
 
 var _pins_hovered : Array[Pin] = []
 

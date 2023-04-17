@@ -1,35 +1,40 @@
 class_name SaveFile
 extends Object
 
+## This class is made to save and load nodes in a tree.
+##
+## Loaded and saved nodes are stored in a binary array.
+## [br]
+## The save file is a *.gmtpn file. It is binary-encoded (padded to 4 bytes) with the program's saved
+## nodes information.[br]
+## Each node that can be saved in the save file is part of the GROUP_SAVED_NODES and must implement 
+## both methods : 
+## [br]   METHOD_SAVE_NODE (prototype : `func METHOD_SAVE_NODE(PackedByteArray) -> SAVEFILE_ERROR` ; 
+## [br]   METHOD_LOAD_NODE (prototype : `func METHOD_LOAD_NODE(u32, PackedByteArray) -> SAVEFILE_ERROR`.
+## [br]
+## The save file begins with a header :
+## [br]   4 bytes : version of the program as u32
+## [br]   + 4 bytes : number of save blocks as u32
+## [br]
+## [br]Then, the save file is a succession of save blocks. A save block has its own header (the 'block 
+## header') and some binary content (the 'save data').
+## [br]
+## [br]A block header follows directly the save file header. It looks like this, with positions offset by
+## the block header's positon:
+## [br]  4 bytes :                length of the node's name (STR NAME LEN) as u32
+## [br]  + (STR NAME LEN) bytes : name of the saved node as String
+## [br]  + 4 bytes :              length of the node's data (DATA LENGTH) as u32
+## [br]  + (DATA LENGTH) bytes:   node's save data passed to node.METHOD_LOAD_NODE
 
+## Group name containing the nodes to be saved.
 const GROUP_SAVED_NODES := "saved node"
+## Method name to save a node.
 const METHOD_SAVE_NODE := "save_node_to"
+## Method name to load a node.
 const METHOD_LOAD_NODE := "load_node_from"
 
-
+## Kind of behaviors the SaveFile class can do when an error occurs.
 enum SAVEFILE_ERROR { NONE, MISHAPS, FATAL }
-
-
-# The save file is a *.gmtpn file. It is binary-encoded (padded to 4 bytes) with the program's saved
-# nodes information.
-# Each node that can be saved in the save file is part of the GROUP_SAVED_NODES and must implement 
-# both methods : 
-#    METHOD_SAVE_NODE (prototype : `func METHOD_SAVE_NODE(PackedByteArray) -> SAVEFILE_ERROR` ; 
-#    METHOD_LOAD_NODE (prototype : `func METHOD_LOAD_NODE(u32, PackedByteArray) -> SAVEFILE_ERROR`.
-#
-# The save file begins with a header :
-#    4 bytes : version of the program as u32
-#    + 4 bytes : number of save blocks as u32
-#
-# Then, the save file is a succession of save blocks. A save block has its own header (the 'block 
-# header') and some binary content (the 'save data').
-#
-# A block header follows directly the save file header. It looks like this, with positions offset by
-# the block header's positon:
-#   4 bytes :                length of the node's name (STR NAME LEN) as u32
-#   + (STR NAME LEN) bytes : name of the saved node as String
-#   + 4 bytes :              length of the node's data (DATA LENGTH) as u32
-#   + (DATA LENGTH) bytes:   node's save data passed to node.METHOD_LOAD_NODE
 
 
 # save file's header non-representative data
@@ -74,8 +79,8 @@ class SaveBlock:
 		
 
 
-# save the program's persistent nodes to a file represented by *path*. If the path is invalid, or 
-# that the file could not be opened for any reason, the save process is aborted.
+## Saves the program's persistent nodes to a file represented by *path*. If the path is invalid, or 
+## that the file could not be opened for any reason, the save process is aborted.
 static func save_state_to(scene_tree : SceneTree, path : String) -> void:
 	var save_content : Array[SaveBlock] = []
 	var save_header : SaveHeader
@@ -108,7 +113,7 @@ static func save_state_to(scene_tree : SceneTree, path : String) -> void:
 	save_file.close()
 
 
-# Load the program's persistent nodes stored in a save file.
+## Loads the program's persistent nodes stored in a save file.
 static func load_state_from(root_node : Node, path : String) -> void:
 	var save_file : FileAccess
 	var save_header : SaveHeader = SaveHeader.new()
