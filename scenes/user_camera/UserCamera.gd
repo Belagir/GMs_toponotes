@@ -6,8 +6,8 @@ extends Camera2D
 # - pin_deselected -> to make the distinction between a click to deselect pins or add a new one
 #
 # Global events sent :
-# - zoom_level_changed -> the zoom level changed
-# - pin_request_all_deselection  -> deselect all pins
+# - changed_zoom_level -> the zoom level changed
+# - requested_deselection_of_all_pins  -> deselect all pins
 # - new_default_pin -> add a pin
 
 # kind of zoom action
@@ -60,7 +60,7 @@ func _change_zoom(kind : ZOOM) -> void:
 	
 	self.zoom *=  Vector2(zoom_step ** modifier, zoom_step ** modifier)
 	self.zoom = clamp(zoom, Vector2(zoom_min, zoom_min), Vector2(zoom_max, zoom_max))
-	GlobalEvents.zoom_level_changed.emit(self.zoom)
+	GlobalEvents.changed_zoom_level.emit(self.zoom)
 	
 	self.position = self.position + ((-modifier) * (self.position - get_global_mouse_position()) * (zoom_step-1))
 	self.position = keep_in_my_map(self.position)

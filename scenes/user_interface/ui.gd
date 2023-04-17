@@ -2,11 +2,11 @@ extends HBoxContainer
 
 # Global events listened to :
 # - requested_change_of_background_image -> to activate / deactivate save and load buttons
-# - map_got_a_change -> to monitor the nexessity to ask for a save when some changes might get lost
+# - changed_something_on_the_map -> to monitor the nexessity to ask for a save when some changes might get lost
 # 
 # Global events sent :
 # - requested_change_of_background_image -> request a texture change for the background
-# - request_map_wipe -> request a new map
+# - requested_map_wipe -> request a new map
 
 
 const PROGRAM_FILE_EXTENSION : String = "gmtpn"
@@ -35,7 +35,7 @@ func _ready() -> void:
 	
 	# refresh button
 	%RefreshButton.pressed.connect(_load_image_as_bg.bind(_bg_image_path))
-	GlobalEvents.map_got_a_change.connect(_on_map_changed)
+	GlobalEvents.changed_something_on_the_map.connect(_on_map_changed)
 
 
 func toggle_controls_group(group_name : String, controls_active : bool) -> void:
@@ -101,7 +101,7 @@ func _on_new_button_pressed() -> void:
 
 
 func _wipe_map() -> void:
-	GlobalEvents.request_map_wipe.emit()
+	GlobalEvents.requested_map_wipe.emit()
 	_bg_image_path = ""
 	_save_path = ""
 	_modified_sice_last_save = false

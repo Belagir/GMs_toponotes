@@ -3,8 +3,8 @@ extends Sprite2D
 # Global events listened to :
 # - new_default_pin -> will add a pin at the mouse's position
 # - requested_change_of_background_image -> will change the texture
-# - request_map_wipe -> to roll the map back to a blank state
-# - zoom_level_changed -> to pass the zoom level to new pins
+# - requested_map_wipe -> to roll the map back to a blank state
+# - changed_zoom_level -> to pass the zoom level to new pins
 #
 # Global events sent :
 # - requested_change_of_background_image -> orders itself to change texture (in a load save scenario)
@@ -22,8 +22,8 @@ var _max_pin_z_level : int = 1
 func _ready() -> void:
 	GlobalEvents.requested_new_default_pin.connect(_add_default_pin)
 	GlobalEvents.requested_change_of_background_image.connect(_on_changed_image)
-	GlobalEvents.request_map_wipe.connect(reset_map)
-	GlobalEvents.zoom_level_changed.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
+	GlobalEvents.requested_map_wipe.connect(reset_map)
+	GlobalEvents.changed_zoom_level.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
 	GlobalEvents.switched_pin_state.connect(_bring_pin_up)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
@@ -81,7 +81,7 @@ func reset_map() -> void:
 	self.texture = null
 	for child in get_children():
 		if child is Pin: child.queue_free()
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 # save the node's important information to a byte buffer
@@ -129,7 +129,7 @@ func _add_default_pin(where : Vector2) -> void:
 	# adding the pin
 	var new_pin := self._add_pin()
 	new_pin.move_to(where)
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 # appends the pin's binary data to the provided buffer.
@@ -147,7 +147,7 @@ func _append_encode_all_pins(buffer : PackedByteArray) -> void:
 
 func _bring_pin_up(pin : Pin, _old_state: String, new_state : String) -> void:
 	if new_state == "Selected":
-		GlobalEvents.bring_pins_z_level_down.emit(pin.z_index)
+		GlobalEvents.brought_pin_upward_z_level.emit(pin.z_index)
 		pin.z_index = _max_pin_z_level
 
 
@@ -179,7 +179,7 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	var new_size : Vector2 = new_texture.get_size() if new_texture else Vector2(0, 0)
 	GlobalEvents.changed_background_image_dimensions.emit(old_size, new_size)
 	self.texture = new_texture
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 func _add_pin() -> Pin:

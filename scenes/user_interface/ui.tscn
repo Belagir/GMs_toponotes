@@ -34,11 +34,11 @@ func on_enter(_args : Dictionary) -> void:
 	owner.toggle_controls_group(\"save_buttons\", true)
 	owner.toggle_controls_group(\"bg_image_path_dependant\", true)
 	owner.toggle_controls_group(\"new_buttons\", true)
-	GlobalEvents.request_map_wipe.connect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
+	GlobalEvents.requested_map_wipe.connect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
 
 
 func on_leave() -> void:
-	GlobalEvents.request_map_wipe.disconnect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
+	GlobalEvents.requested_map_wipe.disconnect(_owner_state_machine.transition_to.bind(\"NoMapLoaded\"))
 "
 
 [node name="UI" type="HBoxContainer"]

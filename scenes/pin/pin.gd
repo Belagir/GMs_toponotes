@@ -2,8 +2,8 @@ class_name Pin
 extends Node2D
 
 # Global events listened to :
-# - pin_request_all_deselection -> will deselect the pin
-# - zoom_level_changed -> will actualize the note's size
+# - requested_deselection_of_all_pins -> will deselect the pin
+# - changed_zoom_level -> will actualize the note's size
 # - changed_background_image_dimensions -> to change the pin's position to match the new ratio
 #
 # Global events sent :
@@ -57,10 +57,10 @@ func _ready() -> void:
 	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
-	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
-	GlobalEvents.zoom_level_changed.connect(change_control_nodes_scale)
+	GlobalEvents.requested_deselection_of_all_pins.connect(to_state.bind("Ignored"))
+	GlobalEvents.changed_zoom_level.connect(change_control_nodes_scale)
 	GlobalEvents.changed_background_image_dimensions.connect(_adapt_position_to_image_dim)
-	GlobalEvents.bring_pins_z_level_down.connect(_bring_down)
+	GlobalEvents.brought_pin_upward_z_level.connect(_bring_down)
 	
 	_note_edit.text_changed.emit()
 
@@ -147,7 +147,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 func move_to(target : Vector2) -> void:
 	self.position = target
 	_original_position = self.position
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 func set_note_text(text : String) -> void:
@@ -235,12 +235,11 @@ func to_size(new_pix_size : Vector2) -> void:
 	
 	_icon_selector.position.x = real_size.x / 1.5
 	
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 # change the state of the pin to another state
 func to_state(new_state : StringName) -> void:
-	print("-> ", new_state)
 	if (_state_machine.state.name != new_state):
 		GlobalEvents.switched_pin_state.emit(self, _state_machine.state.name, new_state)
 		(_state_machine as StateMachine).transition_to(new_state)
@@ -249,14 +248,14 @@ func to_state(new_state : StringName) -> void:
 # change the node's postion to match the new ratio between the two sizes
 func _adapt_position_to_image_dim(old_dim : Vector2, new_dim : Vector2) -> void:
 	self.position = self.position * (new_dim / old_dim)
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 # change the appearance of the pin
 func _change_appearance(apparel : Texture, new_index : int) -> void:
 	_pin_appearance.icon_texture = apparel
 	_icon_texture_index = new_index
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 
 
 # bring the pin's z-index down if it is above the limit
@@ -267,7 +266,7 @@ func _bring_down(limit_level : int) -> void:
 
 # when the note text changes, the highlight excerpt must be updated
 func _note_text_changed() -> void:
-	GlobalEvents.map_got_a_change.emit()
+	GlobalEvents.changed_something_on_the_map.emit()
 	var target_text : String = _note_edit.rich_text
 	
 	if (target_text.find("\n") < DISPLAYED_CHARACTERS_HIGHLIGHTED) and target_text.find("\n") != -1:
