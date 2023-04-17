@@ -4,7 +4,7 @@ extends Node2D
 # Global events listened to :
 # - pin_request_all_deselection -> will deselect the pin
 # - zoom_level_changed -> will actualize the note's size
-# - background_image_dimensions_changed -> to change the pin's position to match the new ratio
+# - changed_background_image_dimensions -> to change the pin's position to match the new ratio
 #
 # Global events sent :
 # - pin_hover -> notify the rest of the program that this pin is hovered by the mouse
@@ -44,11 +44,11 @@ var _icon_texture_index : int = 0
 
 func _ready() -> void:
 	(_pin_body_shape.shape as CircleShape2D).radius = _pin_appearance.get_size_px().x / 2
-	_pin_body.mouse_entered.connect(_pin_hovered.bind(true))
-	_pin_body.mouse_exited.connect(_pin_hovered.bind(false))
+	_pin_body.mouse_entered.connect(_toggle_hovered.bind(true))
+	_pin_body.mouse_exited.connect(_toggle_hovered.bind(false))
 	
-	_resize_handle.button_down.connect(_state_machine.transition_to.bind("ResizeActivated"))
-	_delete_button.button_down.connect(_state_machine.transition_to.bind("DeletingInitiated"))
+	_resize_handle.button_down.connect(to_state.bind("ResizeActivated"))
+	_delete_button.button_down.connect(to_state.bind("DeletingInitiated"))
 	
 	_note_edit.text_changed.connect(_note_text_changed)
 	
@@ -59,7 +59,7 @@ func _ready() -> void:
 	
 	GlobalEvents.pin_request_all_deselection.connect(to_state.bind("Ignored"))
 	GlobalEvents.zoom_level_changed.connect(change_control_nodes_scale)
-	GlobalEvents.background_image_dimensions_changed.connect(_adapt_position_to_image_dim)
+	GlobalEvents.changed_background_image_dimensions.connect(_adapt_position_to_image_dim)
 	GlobalEvents.bring_pins_z_level_down.connect(_bring_down)
 	
 	_note_edit.text_changed.emit()
@@ -138,7 +138,7 @@ func from_byte_array(_version : int, buffer : PackedByteArray) -> int:
 	self.z_index = decoded_info["z index"]
 	_icon_selector.switch_to(decoded_info["icon texture"])
 	self.set_note_text(decoded_info["note content"])
-	self._state_machine.transition_to("Ignored")
+	self.to_state("Ignored")
 	
 	return byte_offset
 
@@ -240,7 +240,10 @@ func to_size(new_pix_size : Vector2) -> void:
 
 # change the state of the pin to another state
 func to_state(new_state : StringName) -> void:
-	(_state_machine as StateMachine).transition_to(new_state)
+	print("-> ", new_state)
+	if (_state_machine.state.name != new_state):
+		GlobalEvents.switched_pin_state.emit(self, _state_machine.state.name, new_state)
+		(_state_machine as StateMachine).transition_to(new_state)
 
 
 # change the node's postion to match the new ratio between the two sizes
@@ -262,11 +265,6 @@ func _bring_down(limit_level : int) -> void:
 		self.z_index -= 1
 
 
-# signal that this pin is hovered
-func _pin_hovered(entered : bool) -> void:
-	GlobalEvents.pin_hover.emit(self, entered)
-
-
 # when the note text changes, the highlight excerpt must be updated
 func _note_text_changed() -> void:
 	GlobalEvents.map_got_a_change.emit()
@@ -279,3 +277,6 @@ func _note_text_changed() -> void:
 	
 	_excerpt_label.text = _excerpt_label.text.strip_edges()
 	_excerpt_label.text += "…" if target_text.length() > DISPLAYED_CHARACTERS_HIGHLIGHTED else ""
+
+func _toggle_hovered(mouse_entered : bool) -> void:
+	GlobalEvents.hovered_pin_by_mouse.emit(self, mouse_entered)

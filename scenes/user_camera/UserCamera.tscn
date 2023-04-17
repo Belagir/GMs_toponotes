@@ -21,6 +21,13 @@ func on_input(event : InputEvent) -> void:
 
 func on_leave() -> void:
 	super()
+
+func _update_pin_hovered(pin : Pin, entered : bool) -> void:
+	super(pin, entered)
+	if entered and (pin.state() == \"Ignored\"):
+		pin.to_state(\"Highlighted\")
+	elif not entered and (pin.state() == \"Highlighted\"):
+		pin.to_state(\"Ignored\")
 "
 
 [sub_resource type="GDScript" id="GDScript_nxyok"]
@@ -34,7 +41,7 @@ var _flag_pins_were_deselected : bool = false
 
 func on_enter(args : Dictionary) -> void:
 	super(args)
-	GlobalEvents.pin_deselected.connect(_pin_was_deselected)
+	GlobalEvents.switched_pin_state.connect(_pin_was_deselected)
 
 
 func on_input(event : InputEvent) -> void:
@@ -52,17 +59,17 @@ func on_input(event : InputEvent) -> void:
 			_flag_pins_were_deselected = false
 			GlobalEvents.pin_request_all_deselection.emit()
 			if not _flag_pins_were_deselected:
-				GlobalEvents.new_default_pin.emit()
+				GlobalEvents.requested_new_default_pin.emit(owner.get_global_mouse_position())
 		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
 
 
 func on_leave() -> void:
 	super()
-	GlobalEvents.pin_deselected.disconnect(_pin_was_deselected)
+	GlobalEvents.switched_pin_state.disconnect(_pin_was_deselected)
 
 
-func _pin_was_deselected(_pin : Node2D) -> void:
-	_flag_pins_were_deselected = true
+func _pin_was_deselected(_pin : Pin, old_state : String, _new_state : String) -> void:
+	_flag_pins_were_deselected = _flag_pins_were_deselected or (old_state == \"Selected\") or (old_state == \"Examined\")
 "
 
 [sub_resource type="GDScript" id="GDScript_4gpp1"]

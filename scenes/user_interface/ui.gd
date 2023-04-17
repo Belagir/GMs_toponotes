@@ -1,11 +1,11 @@
 extends HBoxContainer
 
 # Global events listened to :
-# - changed_background_texture -> to activate / deactivate save and load buttons
+# - requested_change_of_background_image -> to activate / deactivate save and load buttons
 # - map_got_a_change -> to monitor the nexessity to ask for a save when some changes might get lost
 # 
 # Global events sent :
-# - changed_background_texture -> request a texture change for the background
+# - requested_change_of_background_image -> request a texture change for the background
 # - request_map_wipe -> request a new map
 
 
@@ -78,7 +78,7 @@ func _load_image_as_bg(path : String) -> void:
 	var texture : Texture = ImageTexture.create_from_image(buffer)
 	
 	if (texture != null):
-		GlobalEvents.changed_background_texture.emit(texture)
+		GlobalEvents.requested_change_of_background_image.emit(texture)
 
 
 func _save_map() -> void:

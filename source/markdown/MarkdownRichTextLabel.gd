@@ -140,6 +140,11 @@ func _ready() -> void:
 	_markdown_automaton.set_state("format deactivated", StateFormatDeactivated.new(self))
 
 
+func _notification(what : int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_markdown_automaton.free()
+
+
 # replace the buffer by the translation of the new text. Use this in the case of a deletion event 
 # that will mess with the internal buffer's BBCode stack
 func md_set_whole_text(new_md_text : String) -> void:

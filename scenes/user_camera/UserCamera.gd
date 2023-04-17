@@ -1,7 +1,7 @@
 extends Camera2D
 
 # Global events listened to :
-# - background_image_dimensions_changed  -> to update the remembered background dimensions and limit 
+# - changed_background_image_dimensions  -> to update the remembered background dimensions and limit 
 #   camera movement
 # - pin_deselected -> to make the distinction between a click to deselect pins or add a new one
 #
@@ -29,7 +29,7 @@ var _map_dimensions : Vector2 = Vector2(0, 0)
 
 func _ready() -> void:
 	# listen to map dimension updates to preserve bound check correctness
-	GlobalEvents.background_image_dimensions_changed.connect(_update_map_dimensions)
+	GlobalEvents.changed_background_image_dimensions.connect(_update_map_dimensions)
 
 
 func _unhandled_input(event : InputEvent) -> void:

@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
 [ext_resource type="Script" path="res://source/node_state_machine/StateMachine.gd" id="2_we7sp"]
 [ext_resource type="PackedScene" uid="uid://buug8fvw8gvvm" path="res://scenes/pin_note/NoteTextEdit.tscn" id="3_33ski"]
-[ext_resource type="Texture2D" uid="uid://diule3m8nieao" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
-[ext_resource type="Texture2D" uid="uid://b36m802rwabyd" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
+[ext_resource type="Texture2D" uid="uid://cyka1c2gr17ft" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
+[ext_resource type="Texture2D" uid="uid://bq55njme1wttr" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
 [ext_resource type="PackedScene" uid="uid://djj8ijgjt6kt1" path="res://scenes/pin_appearance/PinAppearance.tscn" id="6_7w8mb"]
 [ext_resource type="PackedScene" uid="uid://caw4ly5q41ytr" path="res://scenes/pin_icon_selector/PinIconSelector.tscn" id="6_narny"]
 
@@ -57,7 +57,6 @@ script/source = "extends State
 func on_enter(args : Dictionary) -> void:
 	super(args)
 	owner.set_visibility_associated_note(true)
-	GlobalEvents.pin_selected.emit(owner)
 
 
 func on_input(_event : InputEvent) -> void:
@@ -67,7 +66,6 @@ func on_input(_event : InputEvent) -> void:
 func on_leave() -> void:
 	super()
 	owner.set_visibility_associated_note(false)
-	GlobalEvents.pin_deselected.emit(owner)
 
 "
 
@@ -89,7 +87,6 @@ func on_input(_event : InputEvent) -> void:
 func on_leave() -> void:
 	super()
 	owner.set_visibility_config_things(false)
-	GlobalEvents.pin_deselected.emit(owner)
 "
 
 [sub_resource type="GDScript" id="GDScript_wlfs2"]
@@ -107,7 +104,7 @@ func on_input(event : InputEvent) -> void:
 	var longest_axis : int
 	
 	if event.is_action_released(\"click left\"):
-		_owner_state_machine.transition_to(\"Examined\")
+		owner.to_state(\"Examined\")
 	elif mouse_motion:
 		wanted_size = owner.get_global_mouse_position() - owner.position
 		longest_axis = wanted_size.max_axis_index()
@@ -134,7 +131,7 @@ func on_enter(_args : Dictionary) -> void:
 
 func on_input(event : InputEvent) -> void:
 	if event.is_action_released(\"click left\"):
-		_owner_state_machine.transition_to(\"Examined\")
+		owner.to_state(\"Examined\")
 
 
 func on_leave() -> void:
