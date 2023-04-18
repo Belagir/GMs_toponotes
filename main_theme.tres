@@ -1,3 +1,10 @@
-[gd_resource type="Theme" format=3 uid="uid://byj4splc75h6n"]
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://byj4splc75h6n"]
+
+[ext_resource type="FontFile" uid="uid://dx6h65qbq113k" path="res://fonts/Hack-Regular.ttf" id="2_8ghyk"]
+[ext_resource type="FontFile" uid="uid://cl1tca2dqlmtv" path="res://fonts/EB_Garamond_12_All_SC_AllSC.ttf" id="4_r772t"]
 
 [resource]
+default_font = ExtResource("4_r772t")
+default_font_size = 20
+TextEdit/font_sizes/font_size = 14
+TextEdit/fonts/font = ExtResource("2_8ghyk")
