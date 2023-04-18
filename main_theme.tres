@@ -1,10 +1,24 @@
-[gd_resource type="Theme" load_steps=3 format=3 uid="uid://byj4splc75h6n"]
+[gd_resource type="Theme" load_steps=8 format=3 uid="uid://byj4splc75h6n"]
 
-[ext_resource type="FontFile" uid="uid://dx6h65qbq113k" path="res://fonts/Hack-Regular.ttf" id="2_8ghyk"]
-[ext_resource type="FontFile" uid="uid://cl1tca2dqlmtv" path="res://fonts/EB_Garamond_12_All_SC_AllSC.ttf" id="4_r772t"]
+[ext_resource type="FontFile" uid="uid://b35cebheynwl8" path="res://fonts/EB_Garamond/EB_Garamond_12_All_SC_AllSC.ttf" id="1_e5nxj"]
+[ext_resource type="FontFile" uid="uid://b368lehx8ek0q" path="res://fonts/EB_Garamond/EB_Garamond_SC_12_Regular.ttf" id="2_nkmmh"]
+[ext_resource type="FontFile" uid="uid://cyn31g3xfwkj4" path="res://fonts/EB_Garamond/EB_Garamond_12_Italic.ttf" id="3_5d88d"]
+[ext_resource type="FontFile" uid="uid://shro4lryvusx" path="res://fonts/Hack/Hack-Regular.ttf" id="4_qbd8v"]
+[ext_resource type="FontFile" uid="uid://t4qpg2e8vf3u" path="res://fonts/EB_Garamond/EB_Garamond_12_Regular.ttf" id="5_368a0"]
+[ext_resource type="FontFile" uid="uid://br2prrsvl7o5i" path="res://fonts/Nimbus_Mono_PS/NimbusMonoPS-Regular.otf" id="6_t4mxj"]
+[ext_resource type="FontFile" uid="uid://bbe4hgytv7be7" path="res://fonts/Basteleur/Basteleur_Moonlight.ttf" id="7_ek55a"]
 
 [resource]
-default_font = ExtResource("4_r772t")
-default_font_size = 20
-TextEdit/font_sizes/font_size = 14
-TextEdit/fonts/font = ExtResource("2_8ghyk")
+default_font = ExtResource("7_ek55a")
+RichTextLabel/font_sizes/bold_font_size = 18
+RichTextLabel/font_sizes/bold_italics_font_size = 18
+RichTextLabel/font_sizes/italics_font_size = 18
+RichTextLabel/font_sizes/mono_font_size = 14
+RichTextLabel/font_sizes/normal_font_size = 18
+RichTextLabel/fonts/bold_font = ExtResource("1_e5nxj")
+RichTextLabel/fonts/bold_italics_font = ExtResource("2_nkmmh")
+RichTextLabel/fonts/italics_font = ExtResource("3_5d88d")
+RichTextLabel/fonts/mono_font = ExtResource("4_qbd8v")
+RichTextLabel/fonts/normal_font = ExtResource("5_368a0")
+TextEdit/font_sizes/font_size = 18
+TextEdit/fonts/font = ExtResource("6_t4mxj")
