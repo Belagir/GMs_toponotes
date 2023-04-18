@@ -25,6 +25,10 @@ ProgramVersion="*res://source/version/program_version.gd"
 version_control/plugin_name="GitPlugin"
 version_control/autoload_on_startup=true
 
+[gui]
+
+theme/custom="res://main_theme.tres"
+
 [input]
 
 "map zoom"={

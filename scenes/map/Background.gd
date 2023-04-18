@@ -7,8 +7,10 @@ extends Sprite2D
 ## The class can be saved to and loaded from a byte array. Those saves include
 ## pins taht are child of the node.
 
+
 # pin scene for instanciation purposes
 const _PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
+
 
 # To remember the zoom level of the camera so pins can be created with  widgets
 # already scaled. 
@@ -83,11 +85,11 @@ func load_node_from(version : int, buffer : PackedByteArray) -> void:
 ## [br] - all the pins ;
 ## [br] - the currently loaded texture.
 func reset_map() -> void:
-	self.texture.queue_free()
 	self.texture = null
 	for child in get_children():
 		if child is Pin: child.queue_free()
 	GlobalEvents.changed_something_on_the_map.emit()
+
 
 ## Saves the node's important information to a byte buffer.
 ##    [br][code]buffer[/code] : target buffer which content will be replaced with 
