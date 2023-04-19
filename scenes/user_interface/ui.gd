@@ -17,9 +17,9 @@ var _modified_sice_last_save := false
 
 func _ready() -> void:
 	# buttons spawning their dialog window
-	%ChangeImageButton.pressed.connect(%ChangeImageButton/ChangeImageFileDialog.show)
+	%ChangeImageButton.pressed.connect(_center_and_show_dialog.bind(%ChangeImageButton/ChangeImageFileDialog))
 	%NewButton.pressed.connect(_on_new_button_pressed)
-	%SaveAsButton.pressed.connect(%SaveAsButton/SaveMapFileDialog.show)
+	%SaveAsButton.pressed.connect(_center_and_show_dialog.bind(%SaveAsButton/SaveMapFileDialog))
 	%SaveButton.pressed.connect(_save_map)
 	%LoadButton.pressed.connect(_on_load_button_pressed)
 	
@@ -27,7 +27,7 @@ func _ready() -> void:
 	%ChangeImageButton/ChangeImageFileDialog.file_selected.connect(_on_load_image_dialog_file_selected)
 	%SaveAsButton/SaveMapFileDialog.file_selected.connect(_on_save_map_file_dialog_file_selected)
 	%LoadButton/LoadMapFileDialog.file_selected.connect(_on_load_map_file_dialog_file_selected)
-	%LoadButton/DiscardToLoadDialog.confirmed.connect(%LoadButton/LoadMapFileDialog.show)
+	%LoadButton/DiscardToLoadDialog.confirmed.connect(_center_and_show_dialog.bind(%LoadButton/LoadMapFileDialog))
 	%NewButton/DiscardToNewDialog.confirmed.connect(_wipe_map)
 	
 	# refresh button
@@ -64,9 +64,9 @@ func _on_load_map_file_dialog_file_selected(path : String) -> void:
 
 func _on_load_button_pressed() -> void:
 	if not _modified_sice_last_save:
-		$LoadButton/LoadMapFileDialog.show()
+		_center_and_show_dialog($LoadButton/LoadMapFileDialog)
 	else:
-		%LoadButton/DiscardToLoadDialog.show()
+		_center_and_show_dialog(%LoadButton/DiscardToLoadDialog)
 
 
 func _load_image_as_bg(path : String) -> void:
@@ -85,7 +85,11 @@ func _save_map() -> void:
 		SaveFile.save_state_to(self.get_tree(), self._save_path)
 		_modified_sice_last_save = false
 	else:
-		%SaveAsButton/SaveMapFileDialog.show()
+		_center_and_show_dialog(%SaveAsButton/SaveMapFileDialog)
+
+
+func _center_and_show_dialog(dialog : AcceptDialog) -> void:
+	dialog.popup_centered()
 
 
 func _on_map_changed() -> void:
@@ -96,7 +100,7 @@ func _on_new_button_pressed() -> void:
 	if not _modified_sice_last_save:
 		_wipe_map()
 	else:
-		%NewButton/DiscardToNewDialog.show()
+		_center_and_show_dialog(%NewButton/DiscardToNewDialog)
 
 
 func _wipe_map() -> void:
