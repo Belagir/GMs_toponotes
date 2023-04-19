@@ -41,6 +41,8 @@ const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 
 
 # pin components for ease of (and typed) access
+@onready var _animation_player := $AnimationPlayer as AnimationPlayer
+
 @onready var _delete_button := $DeleteButton as TextureButton
 @onready var _delete_timer := $DeleteButton/DeletionTimer as Timer
 
@@ -88,10 +90,7 @@ func _ready() -> void:
 	GlobalEvents.brought_pin_upward_z_level.connect(_bring_down)
 	
 	_note_edit.text_changed.emit()
-
-
-func _enter_tree() -> void:
-	$AnimationPlayer.play("drop", -1, 2.5)
+	self.play_animation("drop", 2.5)
 
 
 ## Changes the scale of the control nodes so while their position will follow 
@@ -162,6 +161,10 @@ func move_to(target : Vector2) -> void:
 	self.position = target
 	_original_position = self.position
 	GlobalEvents.changed_something_on_the_map.emit()
+
+## Animates the pin with a custom preplaned animation.
+func play_animation(animation_name : String, speed : float = 1.0) -> void:
+	_animation_player.play(animation_name, -1, speed)
 
 
 ## Sets the pin's asociated note text to a new value.
