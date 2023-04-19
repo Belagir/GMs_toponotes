@@ -90,6 +90,10 @@ func _ready() -> void:
 	_note_edit.text_changed.emit()
 
 
+func _enter_tree() -> void:
+	$AnimationPlayer.play("drop", -1, 2.5)
+
+
 ## Changes the scale of the control nodes so while their position will follow 
 ## the node, their scale will not follow the camera's zoom.
 ## [br][code]new_zoom_level[/code] : camera's current zoom level
