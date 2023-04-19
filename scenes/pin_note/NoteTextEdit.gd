@@ -31,7 +31,7 @@ var text : String :
 var rich_text : String :
 	get:
 		return _note_display_control.get_parsed_text()
-	set(new_text): pass
+	set(_new_text): pass
 
 
 func _ready() -> void:

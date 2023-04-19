@@ -55,6 +55,7 @@ func on_input(event : InputEvent) -> void:
 				_pins_hovered.front().to_state(\"Highlighted\")
 			else:
 				_pins_hovered.front().to_state(\"Selected\")
+				GlobalEvents.focused_pin.emit(_pins_hovered.front())
 		else:
 			_flag_pins_were_deselected = false
 			GlobalEvents.requested_deselection_of_all_pins.emit()
@@ -96,6 +97,8 @@ func on_enter(args : Dictionary) -> void:
 	_camera_start_pos = args[\"cam start\"]
 	_dragging_start_pos = args[\"drag start\"]
 	_dragged_pin = _pins_hovered.front() if _pins_hovered.size() > 0 else null
+	if _dragged_pin:
+		GlobalEvents.focused_pin.emit(_dragged_pin)
 
 
 
@@ -128,6 +131,7 @@ func on_input(event : InputEvent) -> void:
 	if event.is_action_released(\"click right\"):
 		if _pins_hovered.size() > 0:
 			_pins_hovered.front().to_state(\"Examined\")
+			GlobalEvents.focused_pin.emit(_pins_hovered.front())
 		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })
 
 

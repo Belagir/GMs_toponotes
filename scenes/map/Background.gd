@@ -24,7 +24,7 @@ func _ready() -> void:
 	GlobalEvents.requested_change_of_background_image.connect(_on_changed_image)
 	GlobalEvents.requested_map_wipe.connect(reset_map)
 	GlobalEvents.changed_zoom_level.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
-	GlobalEvents.switched_pin_state.connect(_bring_pin_up)
+	GlobalEvents.focused_pin.connect(_bring_pin_up)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
@@ -165,10 +165,9 @@ func _append_encode_all_pins(buffer : PackedByteArray) -> void:
 
 
 # bring one pin all the way up and notify of this action the rest of the program 
-func _bring_pin_up(pin : Pin, _old_state: String, new_state : String) -> void:
-	if new_state == "Selected":
-		GlobalEvents.brought_pin_upward_z_level.emit(pin.z_index)
-		pin.z_index = _max_pin_z_level
+func _bring_pin_up(pin : Pin) -> void:
+	GlobalEvents.brought_pin_upward_z_level.emit(pin.z_index)
+	pin.z_index = _max_pin_z_level
 
 
 # decode the pin's binary data from the provided buffer and adds them to the node.

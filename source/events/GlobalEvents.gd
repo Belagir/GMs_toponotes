@@ -15,6 +15,9 @@ signal changed_zoom_level(new_level : Vector2)
 ## Some object was brought to the yop z-level from the `from` value.
 signal brought_pin_upward_z_level(from : int)
 
+## A pin is being focused by the user
+signal focused_pin(pin : Pin)
+
 ## A pin is hovered by the mouse
 signal hovered_pin_by_mouse(pin : Pin, entered : bool)
 
