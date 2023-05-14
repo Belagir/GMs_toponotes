@@ -84,7 +84,7 @@ func _ready() -> void:
 	
 	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
 	
-	GlobalEvents.requested_deselection_of_all_pins.connect(to_state.bind("Ignored"))
+	GlobalEvents.requested_deselection_of_all_pins.connect(_deselect_self)
 	GlobalEvents.changed_zoom_level.connect(change_control_nodes_scale)
 	GlobalEvents.changed_background_image_dimensions.connect(_adapt_position_to_image_dim)
 	GlobalEvents.brought_pin_upward_z_level.connect(_bring_down)
@@ -315,6 +315,11 @@ func _change_appearance(apparel : Texture, new_index : int) -> void:
 	_pin_appearance.icon_texture = apparel
 	_icon_texture_index = new_index
 	GlobalEvents.changed_something_on_the_map.emit()
+
+
+func _deselect_self(exceptions : Array[Pin]) -> void:
+	if not self in exceptions:
+		self.to_state("Ignored")
 
 
 # when the note text changes, the highlight excerpt must be updated

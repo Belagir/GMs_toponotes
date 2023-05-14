@@ -57,6 +57,7 @@ script/source = "extends State
 func on_enter(args : Dictionary) -> void:
 	super(args)
 	owner.set_visibility_associated_note(true)
+	GlobalEvents.requested_deselection_of_all_pins.emit([owner as Pin] as Array[Pin])
 
 
 func on_input(_event : InputEvent) -> void:
@@ -78,6 +79,7 @@ script/source = "extends State
 func on_enter(args : Dictionary) -> void:
 	super(args)
 	owner.set_visibility_config_things(true)
+	GlobalEvents.requested_deselection_of_all_pins.emit([owner as Pin] as Array[Pin])
 
 
 func on_input(_event : InputEvent) -> void:
@@ -137,7 +139,7 @@ func on_input(event : InputEvent) -> void:
 
 func on_leave() -> void:
 	owner.set_visibility_config_things(false)
-	owner.deletion_timer().timeout.disconnect(_on_deletion_timer_timeout)	
+	owner.deletion_timer().timeout.disconnect(_on_deletion_timer_timeout)
 	owner.deletion_timer().stop()
 	owner.play_animation(\"RESET\")
 
@@ -309,6 +311,11 @@ layout_mode = 2
 [node name="PinIconSelector" parent="." groups=["unscaling"] instance=ExtResource("6_narny")]
 visible = false
 
+[node name="TextureProgressBar" type="TextureProgressBar" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+
 [node name="PinBody" type="Area2D" parent="."]
 z_index = -1
 metadata/_edit_lock_ = true
@@ -325,8 +332,3 @@ shape = SubResource("CircleShape2D_v5vt5")
 libraries = {
 "": SubResource("AnimationLibrary_c8im6")
 }
-
-[node name="TextureProgressBar" type="TextureProgressBar" parent="."]
-visible = false
-offset_right = 40.0
-offset_bottom = 40.0

@@ -58,7 +58,7 @@ func on_input(event : InputEvent) -> void:
 				GlobalEvents.focused_pin.emit(_pins_hovered.front())
 		else:
 			_flag_pins_were_deselected = false
-			GlobalEvents.requested_deselection_of_all_pins.emit()
+			GlobalEvents.requested_deselection_of_all_pins.emit([] as Array[Pin])
 			if not _flag_pins_were_deselected:
 				GlobalEvents.requested_new_default_pin.emit(owner.get_global_mouse_position())
 		_owner_state_machine.transition_to(\"CursorInactive\", { \"pins hovered\" = _pins_hovered })

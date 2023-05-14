@@ -25,7 +25,7 @@ signal hovered_pin_by_mouse(pin : Pin, entered : bool)
 signal requested_change_of_background_image(new_texture : Texture2D)
 
 ## Deselect all pins
-signal requested_deselection_of_all_pins()
+signal requested_deselection_of_all_pins(exceptions : Array[Pin])
 
 ## A new pin is created at a certain position
 signal requested_new_default_pin(where : Vector2)
