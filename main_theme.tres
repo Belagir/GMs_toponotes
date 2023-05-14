@@ -1,18 +1,25 @@
-[gd_resource type="Theme" load_steps=15 format=3 uid="uid://byj4splc75h6n"]
+[gd_resource type="Theme" load_steps=16 format=3 uid="uid://byj4splc75h6n"]
 
 [ext_resource type="Texture2D" uid="uid://b067m4x2tfp4p" path="res://images/interface/button/button_mk1_hover.png" id="1_4yhat"]
 [ext_resource type="FontFile" uid="uid://b35cebheynwl8" path="res://fonts/EB_Garamond/EB_Garamond_12_All_SC_AllSC.ttf" id="1_e5nxj"]
+[ext_resource type="Texture2D" uid="uid://beutjfl6ckwe8" path="res://images/interface/button/button_mk1_deactivated.png" id="1_ughwg"]
 [ext_resource type="Texture2D" uid="uid://dqs8gpi3n33aj" path="res://images/interface/button/button_mk1.png" id="2_k4ws7"]
 [ext_resource type="FontFile" uid="uid://b368lehx8ek0q" path="res://fonts/EB_Garamond/EB_Garamond_SC_12_Regular.ttf" id="2_nkmmh"]
 [ext_resource type="FontFile" uid="uid://cyn31g3xfwkj4" path="res://fonts/EB_Garamond/EB_Garamond_12_Italic.ttf" id="3_5d88d"]
+[ext_resource type="Texture2D" uid="uid://co1yjxtpcqc2e" path="res://images/interface/button/button_mk1_clicked.png" id="4_hyu0p"]
 [ext_resource type="FontFile" uid="uid://shro4lryvusx" path="res://fonts/Hack/Hack-Regular.ttf" id="4_qbd8v"]
 [ext_resource type="FontFile" uid="uid://t4qpg2e8vf3u" path="res://fonts/EB_Garamond/EB_Garamond_12_Regular.ttf" id="5_368a0"]
 [ext_resource type="FontFile" uid="uid://br2prrsvl7o5i" path="res://fonts/Nimbus_Mono_PS/NimbusMonoPS-Regular.otf" id="6_t4mxj"]
 [ext_resource type="FontFile" uid="uid://bbe4hgytv7be7" path="res://fonts/Basteleur/Basteleur_Moonlight.ttf" id="7_ek55a"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_g4ypi"]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_o57gd"]
+texture = ExtResource("1_ughwg")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+expand_margin_left = 5.0
+expand_margin_right = 5.0
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_c5f8l"]
 texture = ExtResource("1_4yhat")
@@ -33,11 +40,17 @@ expand_margin_left = 5.0
 expand_margin_right = 5.0
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_woq65"]
+texture = ExtResource("4_hyu0p")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+expand_margin_left = 5.0
+expand_margin_right = 5.0
 
 [resource]
 default_font = ExtResource("7_ek55a")
 Button/styles/disabled = SubResource("StyleBoxTexture_g4ypi")
-Button/styles/focus = SubResource("StyleBoxTexture_o57gd")
 Button/styles/hover = SubResource("StyleBoxTexture_c5f8l")
 Button/styles/normal = SubResource("StyleBoxTexture_fgt8w")
 Button/styles/pressed = SubResource("StyleBoxTexture_woq65")
