@@ -1,15 +1,25 @@
-[gd_scene load_steps=4 format=3 uid="uid://cqmxwixijjcyc"]
+[gd_scene load_steps=5 format=3 uid="uid://cqmxwixijjcyc"]
 
 [ext_resource type="PackedScene" uid="uid://c3hixvkqamalf" path="res://scenes/user_interface/ui.tscn" id="1_khmq8"]
 [ext_resource type="PackedScene" uid="uid://b1tqo85m0ofcx" path="res://scenes/map/background.tscn" id="1_o0tkw"]
+[ext_resource type="PackedScene" uid="uid://bsitvsm33l5gb" path="res://scenes/backdrop/Backdrop.tscn" id="1_xgesi"]
 [ext_resource type="PackedScene" uid="uid://cdl5h235jfx4x" path="res://scenes/user_camera/UserCamera.tscn" id="3_oxwk0"]
 
 [node name="Main" type="Node"]
 
 [node name="UICanvasLayer" type="CanvasLayer" parent="."]
+layer = 10
 
 [node name="UI" parent="UICanvasLayer" instance=ExtResource("1_khmq8")]
+show_behind_parent = true
+top_level = true
 
 [node name="UserCamera" parent="." instance=ExtResource("3_oxwk0")]
 
 [node name="Background" parent="." instance=ExtResource("1_o0tkw")]
+
+[node name="BackdropCanvasLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Backdrop" parent="BackdropCanvasLayer" instance=ExtResource("1_xgesi")]
+offset_bottom = 37.0

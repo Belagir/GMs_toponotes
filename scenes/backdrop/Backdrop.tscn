@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsitvsm33l5gb"]
+
+[ext_resource type="Script" path="res://scenes/backdrop/Backdrop.gd" id="1_duvyr"]
+[ext_resource type="Texture2D" uid="uid://qyrfdgo3e7kr" path="res://images/interface/background/dirty_background.png" id="2_w486j"]
+
+[node name="Backdrop" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1_duvyr")
+
+[node name="BackdropSprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_w486j")
+centered = false
