@@ -17,6 +17,8 @@ const _PinScene : PackedScene = preload("res://scenes/pin/pin.tscn")
 var _zoom_level := Vector2(1, 1)
 # To remember the last z-level affected to a pin.
 var _max_pin_z_level : int = 1
+# starting size of pins
+var _pin_starting_size : int = GlobalValues.PIN_SIZE_PX_DEFAULT
 
 
 func _ready() -> void:
@@ -25,6 +27,7 @@ func _ready() -> void:
 	GlobalEvents.requested_map_wipe.connect(reset_map)
 	GlobalEvents.changed_zoom_level.connect(func(new_zoom : Vector2): _zoom_level = new_zoom)
 	GlobalEvents.focused_pin.connect(_bring_pin_up)
+	GlobalEvents.changed_pins_starting_size.connect(_on_changed_pin_size)
 	
 	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
@@ -138,6 +141,7 @@ func _add_default_pin(where : Vector2) -> void:
 	# adding the pin
 	var new_pin := self._add_pin()
 	new_pin.move_to(where)
+	new_pin.to_size(Vector2(_pin_starting_size, _pin_starting_size))
 	GlobalEvents.changed_something_on_the_map.emit()
 
 
@@ -200,3 +204,6 @@ func _on_changed_image(new_texture : Texture2D) -> void:
 	self.texture = new_texture
 	GlobalEvents.changed_something_on_the_map.emit()
 
+func _on_changed_pin_size(new_size : int) -> void:
+	_pin_starting_size = new_size
+	GlobalEvents.changed_something_on_the_map.emit()

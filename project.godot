@@ -17,17 +17,14 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GlobalEvents="*res://source/events/GlobalEvents.gd"
+GlobalEvents="*res://source/globals/GlobalEvents.gd"
+GlobalValues="*res://source/globals/GlobalValues.gd"
 ProgramVersion="*res://source/version/program_version.gd"
 
 [editor]
 
 version_control/plugin_name="GitPlugin"
 version_control/autoload_on_startup=true
-
-[gui]
-
-theme/custom="res://main_theme.tres"
 
 [input]
 

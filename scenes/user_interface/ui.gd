@@ -33,6 +33,14 @@ func _ready() -> void:
 	# refresh button
 	%RefreshButton.pressed.connect(_load_image_as_bg.bind(_bg_image_path))
 	GlobalEvents.changed_something_on_the_map.connect(_on_map_changed)
+	
+	# pin size slider
+	%PinSizeHSlider.min_value = GlobalValues.PIN_SIZE_PX_MIN
+	%PinSizeHSlider.max_value = GlobalValues.PIN_SIZE_PX_MAX
+	%PinSizeHSlider.value = GlobalValues.PIN_SIZE_PX_DEFAULT
+	%PinSizeHSlider.value_changed.connect(func(val : float): GlobalEvents.changed_pins_starting_size.emit(val as int))
+	
+	self.add_to_group(SaveFile.GROUP_SAVED_NODES)
 
 
 ## Toggle the visibility of an arbitrary control group. Available groups are :
@@ -41,6 +49,18 @@ func toggle_controls_group(group_name : String, controls_active : bool) -> void:
 	for node in self.get_tree().get_nodes_in_group(group_name):
 		node.disabled = not controls_active
 
+func editable_controls_group(group_name : String, controls_active : bool) -> void:
+	for node in self.get_tree().get_nodes_in_group(group_name):
+		node.editable = controls_active
+
+func save_node_to(buffer : PackedByteArray) -> SaveFile.SAVEFILE_ERROR:
+	buffer.resize(4)
+	buffer.encode_u32(0, %PinSizeHSlider.value)
+	
+	return SaveFile.SAVEFILE_ERROR.NONE
+
+func load_node_from(_version : int, buffer : PackedByteArray) -> void:
+	%PinSizeHSlider.value = buffer.decode_u32(0)
 
 func _on_load_image_dialog_file_selected(path : String) -> void:
 	_bg_image_path = path

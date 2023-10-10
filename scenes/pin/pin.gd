@@ -30,14 +30,14 @@ extends Node2D
 const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 
 
-@export_group("pin sizing")
-## Minimum size (as diameter in pixels) of a pin.
-@export_range(10, 1000, 1) var min_pin_size_px : int = 60
-## Maximum size (as diameter in pixels) of a pin.
-@export_range(10, 1000, 1) var max_pin_size_px : int = 600
-## Default size (as diameter in pixels) of a pin.
-@export_range(10, 1000, 1) var default_pin_size_px : int = 150
-@export_group("")
+#@export_group("pin sizing")
+### Minimum size (as diameter in pixels) of a pin.
+#@export_range(10, 1000, 1) var min_pin_size_px : int = 60
+### Maximum size (as diameter in pixels) of a pin.
+#@export_range(10, 1000, 1) var max_pin_size_px : int = 600
+### Default size (as diameter in pixels) of a pin.
+#@export_range(10, 1000, 1) var default_pin_size_px : int = 150
+#@export_group("")
 
 
 # pin components for ease of (and typed) access
@@ -82,7 +82,7 @@ func _ready() -> void:
 	_icon_selector.selected_new_icon.connect(_change_appearance)
 	_icon_selector.switch_to(_icon_texture_index)
 	
-	self.to_size(Vector2(default_pin_size_px, default_pin_size_px))
+	self.to_size(Vector2(GlobalValues.PIN_SIZE_PX_DEFAULT, GlobalValues.PIN_SIZE_PX_DEFAULT))
 	
 	GlobalEvents.requested_deselection_of_all_pins.connect(_deselect_self)
 	GlobalEvents.changed_zoom_level.connect(change_control_nodes_scale)
@@ -268,8 +268,8 @@ func to_size(new_pix_size : Vector2) -> void:
 	var my_pix_size : Vector2 = self.size_unscaled()
 	var real_size : Vector2
 	
-	new_pix_size.x = clamp(new_pix_size.x, min_pin_size_px, max_pin_size_px)
-	new_pix_size.y = clamp(new_pix_size.y, min_pin_size_px, max_pin_size_px)
+	new_pix_size.x = clamp(new_pix_size.x, GlobalValues.PIN_SIZE_PX_MIN, GlobalValues.PIN_SIZE_PX_MAX)
+	new_pix_size.y = clamp(new_pix_size.y, GlobalValues.PIN_SIZE_PX_MIN, GlobalValues.PIN_SIZE_PX_MAX)
 	
 	_pin_body.scale = new_pix_size / my_pix_size
 	real_size =  my_pix_size.x * _pin_body.scale

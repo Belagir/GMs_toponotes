@@ -122,7 +122,7 @@ static func load_state_from(root_node : Node, path : String) -> void:
 	
 	save_file = FileAccess.open(path, FileAccess.READ)
 	if not save_file:
-		print_debug("Something went wrong when trying to save to ", path, " : ", FileAccess.get_open_error())
+		print_debug("Something went wrong when trying to load from ", path, " : ", FileAccess.get_open_error())
 		return
 	
 	save_header.bin_deserialize(save_file)
@@ -130,7 +130,7 @@ static func load_state_from(root_node : Node, path : String) -> void:
 	while (save_header.nb_blocks > 0):
 		save_block.bin_deserialize(save_file)
 		
-		tmp_node_loaded = root_node.get_node(save_block.associated_node as String)
+		tmp_node_loaded = root_node.find_child(save_block.associated_node as String)
 		if tmp_node_loaded:
 			tmp_node_loaded.call(METHOD_LOAD_NODE, save_header.program_version, save_block.data)
 		
