@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhntipbhe8v7k"]
+
+[ext_resource type="Script" path="res://scenes/pin_tray_pin_appearance/PinTrayPinAppearance.gd" id="1_0yheu"]
+
+[node name="PinTrayPinAppearance" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_0yheu")

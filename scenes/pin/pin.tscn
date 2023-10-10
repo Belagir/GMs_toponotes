@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scenes/pin/pin.gd" id="1_e4dum"]
 [ext_resource type="Script" path="res://source/node_state_machine/StateMachine.gd" id="2_we7sp"]
 [ext_resource type="PackedScene" uid="uid://buug8fvw8gvvm" path="res://scenes/pin_note/NoteTextEdit.tscn" id="3_33ski"]
-[ext_resource type="Texture2D" uid="uid://cyka1c2gr17ft" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
-[ext_resource type="Texture2D" uid="uid://bq55njme1wttr" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
+[ext_resource type="Texture2D" uid="uid://bm2vigg4cmfm4" path="res://images/pin/delete_mk1.png" id="4_5w6ha"]
+[ext_resource type="Texture2D" uid="uid://be1f5ltb1r3bl" path="res://images/pin/handle_mk1.png" id="4_ajmib"]
 [ext_resource type="PackedScene" uid="uid://djj8ijgjt6kt1" path="res://scenes/pin_appearance/PinAppearance.tscn" id="6_7w8mb"]
 [ext_resource type="PackedScene" uid="uid://caw4ly5q41ytr" path="res://scenes/pin_icon_selector/PinIconSelector.tscn" id="6_narny"]
 

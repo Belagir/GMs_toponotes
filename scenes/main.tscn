@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cqmxwixijjcyc"]
+[gd_scene load_steps=6 format=3 uid="uid://cqmxwixijjcyc"]
 
 [ext_resource type="PackedScene" uid="uid://c3hixvkqamalf" path="res://scenes/user_interface/ui.tscn" id="1_khmq8"]
 [ext_resource type="PackedScene" uid="uid://b1tqo85m0ofcx" path="res://scenes/map/background.tscn" id="1_o0tkw"]
 [ext_resource type="PackedScene" uid="uid://bsitvsm33l5gb" path="res://scenes/backdrop/Backdrop.tscn" id="1_xgesi"]
+[ext_resource type="PackedScene" uid="uid://dthrtrlwkfplw" path="res://scenes/pin_tray/PinTray.tscn" id="2_8o4ij"]
 [ext_resource type="PackedScene" uid="uid://cdl5h235jfx4x" path="res://scenes/user_camera/UserCamera.tscn" id="3_oxwk0"]
 
 [node name="Main" type="Node"]
@@ -13,6 +14,12 @@ layer = 10
 [node name="UI" parent="UICanvasLayer" instance=ExtResource("1_khmq8")]
 show_behind_parent = true
 top_level = true
+
+[node name="PinTray" parent="UICanvasLayer" instance=ExtResource("2_8o4ij")]
+offset_left = 20.0
+offset_top = 50.0
+offset_right = 120.0
+offset_bottom = 600.0
 
 [node name="UserCamera" parent="." instance=ExtResource("3_oxwk0")]
 

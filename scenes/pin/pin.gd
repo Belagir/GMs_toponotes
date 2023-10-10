@@ -29,18 +29,6 @@ extends Node2D
 ## highlighted.
 const DISPLAYED_CHARACTERS_HIGHLIGHTED : int = 20
 
-
-#@export_group("pin sizing")
-### Minimum size (as diameter in pixels) of a pin.
-#@export_range(10, 1000, 1) var min_pin_size_px : int = 60
-### Maximum size (as diameter in pixels) of a pin.
-#@export_range(10, 1000, 1) var max_pin_size_px : int = 600
-### Default size (as diameter in pixels) of a pin.
-#@export_range(10, 1000, 1) var default_pin_size_px : int = 150
-#@export_group("")
-
-
-# pin components for ease of (and typed) access
 @onready var _animation_player := $AnimationPlayer as AnimationPlayer
 
 @onready var _delete_button := $DeleteButton as TextureButton

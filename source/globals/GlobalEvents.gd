@@ -38,3 +38,9 @@ signal switched_pin_state(pin : Pin, old_state : String, new_state : String)
 
 ## pins' starting size has changed
 signal changed_pins_starting_size(new_size : int)
+
+## a pin changed appearance
+signal changed_pin_appearance(pin_app : PinAppearance)
+
+## a pin has been removed with this appearance
+signal removed_pin_appearance(pin_app : PinAppearance)
