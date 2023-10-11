@@ -19,4 +19,4 @@ func get_size_px() -> Vector2:
 
 
 func hash_of_sprites() -> int:
-	return [$SpriteBase, $SpriteRing, $SpriteIcon].hash()
+	return [$SpriteBase.texture, $SpriteRing.texture, $SpriteIcon.texture].hash()

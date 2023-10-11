@@ -305,6 +305,7 @@ func _bring_down(limit_level : int) -> void:
 
 # change the appearance of the pin
 func _change_appearance(apparel : Texture, new_index : int) -> void:
+	GlobalEvents.removed_pin_appearance.emit(_pin_appearance)
 	_pin_appearance.icon_texture = apparel
 	_icon_texture_index = new_index
 	GlobalEvents.changed_pin_appearance.emit(_pin_appearance)

@@ -1,13 +1,16 @@
 extends Control
 class_name PinTrayPinAppearance
 
+const _pin_appearance_scene = preload("res://scenes/pin_appearance/PinAppearance.tscn")
+
 var _my_appearance : PinAppearance = null
 var _pin_tray_container : Container = null
 
 
-func _init(appearance : PinAppearance, container : Container) -> void:
-	_my_appearance = appearance
+func _init(from : PinAppearance, container : Container) -> void:
+	_my_appearance = _pin_appearance_scene.instantiate()
 	_pin_tray_container = container
+	_my_appearance.icon_texture = from.icon_texture
 
 
 func _ready() -> void:

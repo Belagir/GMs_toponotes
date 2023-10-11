@@ -1,15 +1,12 @@
 extends ScrollContainer
 
 
-const _pin_appearance_scene = preload("res://scenes/pin_appearance/PinAppearance.tscn")
-
-
 class CountedAppearance:
 	var appearance : PinTrayPinAppearance
 	var counter : int
 	
 	func _init(pin_app : PinAppearance, start_count : int, container : Container):
-		self.appearance = PinTrayPinAppearance.new(_pin_appearance_scene.instantiate(), container)
+		self.appearance = PinTrayPinAppearance.new(pin_app, container)
 		self.counter = start_count
 
 
@@ -25,8 +22,7 @@ func _ready() -> void:
 
 func _process_appearance(pin_app : PinAppearance, removed : bool) -> void:
 	var hash_value = pin_app.hash_of_sprites()
-	print(hash_value)
-	if (_shown_appearances.has(hash_value)):
+	if _shown_appearances.has(hash_value):
 		if removed and (_shown_appearances[hash_value].counter <= 1):
 			$VBoxContainer.remove_child(_shown_appearances[hash_value].appearance)
 			_shown_appearances.erase(hash_value)
@@ -34,6 +30,6 @@ func _process_appearance(pin_app : PinAppearance, removed : bool) -> void:
 			_shown_appearances[hash_value].counter -= 1
 		else:
 			_shown_appearances[hash_value].counter += 1
-	else:
+	elif not removed:
 		_shown_appearances[hash_value] = CountedAppearance.new(pin_app, 1, self)
 		$VBoxContainer.add_child(_shown_appearances[hash_value].appearance)
