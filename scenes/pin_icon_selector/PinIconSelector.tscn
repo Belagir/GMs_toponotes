@@ -1,11 +1,11 @@
 [gd_scene load_steps=7 format=3 uid="uid://caw4ly5q41ytr"]
 
 [ext_resource type="Script" path="res://scenes/pin_icon_selector/PinIconSelector.gd" id="1_jriao"]
-[ext_resource type="Texture2D" uid="uid://dij8rexawqtwc" path="res://images/pin/pins_icons/notes.png" id="2_4cfrm"]
-[ext_resource type="Texture2D" uid="uid://7tvy3doun1kv" path="res://images/pin/pins_icons/elipsis.png" id="3_wmk7u"]
-[ext_resource type="Texture2D" uid="uid://coxn7wokrbi5m" path="res://images/pin/pins_icons/exclamation_mark.png" id="4_hwwsh"]
-[ext_resource type="Texture2D" uid="uid://b1y8dwfkv2jx" path="res://images/pin/pins_icons/question_mark.png" id="5_nlpwj"]
-[ext_resource type="Texture2D" uid="uid://cr8q7tunqcfdg" path="res://images/pin/pins_icons/skull.png" id="6_v13kr"]
+[ext_resource type="Texture2D" uid="uid://cgsnsi6jka4dh" path="res://images/pin/pins_icons/notes.png" id="2_4cfrm"]
+[ext_resource type="Texture2D" uid="uid://04g61k0muqje" path="res://images/pin/pins_icons/elipsis.png" id="3_wmk7u"]
+[ext_resource type="Texture2D" uid="uid://cyxdnc0vg5p06" path="res://images/pin/pins_icons/exclamation_mark.png" id="4_hwwsh"]
+[ext_resource type="Texture2D" uid="uid://coqn5v7qwnkn7" path="res://images/pin/pins_icons/question_mark.png" id="5_nlpwj"]
+[ext_resource type="Texture2D" uid="uid://6duyql4u8w5w" path="res://images/pin/pins_icons/skull.png" id="6_v13kr"]
 
 [node name="PinIconSelector" type="HBoxContainer"]
 offset_right = 180.0

@@ -57,6 +57,7 @@ var _original_position : Vector2
 # current index of the texture chosen in the array of texture held in the appearance selector.
 var _icon_texture_index : int = 0
 
+
 func _ready() -> void:
 	(_pin_body_shape.shape as CircleShape2D).radius = _pin_appearance.get_size_px().x / 2
 	_pin_body.mouse_entered.connect(_toggle_hovered.bind(true))
@@ -79,6 +80,10 @@ func _ready() -> void:
 	
 	_note_edit.text_changed.emit()
 	self.play_animation("drop", 2.5)
+
+
+func _exit_tree() -> void:
+	GlobalEvents.removed_pin_appearance.emit(_pin_appearance)
 
 
 ## Changes the scale of the control nodes so while their position will follow 
@@ -302,6 +307,7 @@ func _bring_down(limit_level : int) -> void:
 func _change_appearance(apparel : Texture, new_index : int) -> void:
 	_pin_appearance.icon_texture = apparel
 	_icon_texture_index = new_index
+	GlobalEvents.changed_pin_appearance.emit(_pin_appearance)
 	GlobalEvents.changed_something_on_the_map.emit()
 
 
